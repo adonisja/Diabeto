@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { auth } from '@/firebase/firebaseConfig';
 import { useAuth } from '../../firebase/AuthContext';
 import { logAction } from '../../firebase/LogService';
+import signOutButtonStyles from '../../assets/styles/componentStyles/signOutButtonStyles';
 
 interface SignOutButtonProps {
     style?: 'floating' | 'header' | 'inline';
@@ -82,20 +83,20 @@ export default function SignOutButton({
 
     // Determine button style based on props
     const getButtonStyle = () => {
-        const baseStyle: any[] = [styles.signOutButton];
+        const baseStyle: any[] = [signOutButtonStyles.signOutButton];
         
         if (style === 'floating') {
-            baseStyle.push(styles.floating);
-            if (position === 'top-right') baseStyle.push(styles.topRight);
-            if (position === 'bottom-right') baseStyle.push(styles.bottomRight);
+            baseStyle.push(signOutButtonStyles.floating);
+            if (position === 'top-right') baseStyle.push(signOutButtonStyles.topRight);
+            if (position === 'bottom-right') baseStyle.push(signOutButtonStyles.bottomRight);
         } else if (style === 'header') {
-            baseStyle.push(styles.header);
+            baseStyle.push(signOutButtonStyles.header);
         } else if (style === 'inline') {
-            baseStyle.push(styles.inline);
+            baseStyle.push(signOutButtonStyles.inline);
         }
 
-        if (size === 'small') baseStyle.push(styles.small);
-        if (size === 'large') baseStyle.push(styles.large);
+        if (size === 'small') baseStyle.push(signOutButtonStyles.small);
+        if (size === 'large') baseStyle.push(signOutButtonStyles.large);
 
         if (customStyle) baseStyle.push(customStyle);
 
@@ -111,9 +112,9 @@ export default function SignOutButton({
     };
 
     const getTextStyle = () => {
-        const baseStyle: any[] = [styles.signOutText];
-        if (size === 'small') baseStyle.push(styles.smallText);
-        if (size === 'large') baseStyle.push(styles.largeText);
+        const baseStyle: any[] = [signOutButtonStyles.signOutText];
+        if (size === 'small') baseStyle.push(signOutButtonStyles.smallText);
+        if (size === 'large') baseStyle.push(signOutButtonStyles.largeText);
         return baseStyle;
     };
 
@@ -124,63 +125,3 @@ export default function SignOutButton({
         </TouchableOpacity>
     );
 }
-
-const styles = StyleSheet.create({
-    signOutButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#ef5350',
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    floating: {
-        position: 'absolute',
-        zIndex: 1000,
-    },
-    topRight: {
-        top: 60,
-        right: 20,
-    },
-    bottomRight: {
-        bottom: 40,
-        right: 20,
-    },
-    header: {
-        backgroundColor: 'rgba(239, 83, 80, 0.9)',
-        borderRadius: 15,
-    },
-    inline: {
-        backgroundColor: '#ef5350',
-        marginTop: 10,
-    },
-    small: {
-        paddingVertical: 6,
-        paddingHorizontal: 10,
-        borderRadius: 15,
-    },
-    large: {
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 25,
-    },
-    signOutText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: 'bold',
-        marginLeft: 6,
-    },
-    smallText: {
-        fontSize: 12,
-        marginLeft: 4,
-    },
-    largeText: {
-        fontSize: 16,
-        marginLeft: 8,
-    },
-});

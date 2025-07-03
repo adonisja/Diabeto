@@ -4,6 +4,7 @@ import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/firebase/AuthContext';
 import { useRouter } from 'expo-router';
+import protectedLandingStyles from '../../assets/styles/protectedStyles/protectedLandingStyles';
 
 export default function ProtectedIndex() {
     const { user, userProfile, loading, loadingProfile } = useAuth();
@@ -56,37 +57,16 @@ export default function ProtectedIndex() {
     // The loading screen is shown while determining the correct destination
     
     return (
-        <View style={styles.container}>
+        <View style={protectedLandingStyles.container}>
             <LinearGradient
                 colors={['#4c669f', '#3b5998', '#192f6a']}
-                style={styles.gradient}
+                style={protectedLandingStyles.gradient}
             >
-                <View style={styles.loadingContainer}>
+                <View style={protectedLandingStyles.loadingContainer}>
                     <ActivityIndicator size="large" color="#fff" />
-                    <Text style={styles.loadingText}>Loading your dashboard...</Text>
+                    <Text style={protectedLandingStyles.loadingText}>Loading your dashboard...</Text>
                 </View>
             </LinearGradient>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    gradient: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    loadingText: {
-        color: '#fff',
-        fontSize: 16,
-        marginTop: 16,
-        textAlign: 'center',
-    },
-});
