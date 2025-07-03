@@ -138,11 +138,11 @@ $RECYCLE.BIN/
 !ARCHITECTURE.md
 
 # Sensitive documentation (MUST NOT be tracked)
-BUGS_AND_FIXES.md
-PROJECT_STRUCTURE.md
-REFACTORING_SUMMARY.md
-ARCHITECTURE_UPDATE_COMPLETE.md
-*_COMPLETE.md
+BUGS_AND_FIXES.md                     # Contains security vulnerabilities, implementation details, admin access patterns
+PROJECT_STRUCTURE.md                  # Contains internal architecture and sensitive file paths
+REFACTORING_SUMMARY.md               # Personal learning tool and internal development notes
+ARCHITECTURE_UPDATE_COMPLETE.md      # Internal completion status and development workflow
+*_COMPLETE.md                        # Internal status files and development artifacts
 
 # Sensitive configuration and setup files
 temp_admin_setup.js
@@ -164,11 +164,12 @@ DATABASE_SCHEMA.md
 internal_docs/
 
 # These files contain detailed internal information:
-# - PROJECT_STRUCTURE.md: Contains sensitive internal details
+# - BUGS_AND_FIXES.md: Contains security vulnerabilities, Firebase details, admin access patterns
+# - PROJECT_STRUCTURE.md: Contains sensitive internal details and file structure
 # - REFACTORING_SUMMARY.md: Personal learning tool and internal notes
 # - ARCHITECTURE_UPDATE_COMPLETE.md: Internal completion status
 # - Any *_COMPLETE.md files: Internal status files
 
-# Note: Only high-level architecture and bug documentation
-# should be public. Detailed internal structure and personal
-# learning notes should remain private.
+# Note: Only high-level architecture documentation should be public.
+# Detailed internal structure, security details, and personal learning notes
+# must remain private for security and professionalism.
