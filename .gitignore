@@ -142,6 +142,7 @@ BUGS_AND_FIXES.md                     # Contains security vulnerabilities, imple
 PROJECT_STRUCTURE.md                  # Contains internal architecture and sensitive file paths
 REFACTORING_SUMMARY.md               # Personal learning tool and internal development notes
 ARCHITECTURE_UPDATE_COMPLETE.md      # Internal completion status and development workflow
+GIT_WORKFLOW_GUIDE.md                # Internal git workflow and security guidelines
 *_COMPLETE.md                        # Internal status files and development artifacts
 
 # Sensitive configuration and setup files
