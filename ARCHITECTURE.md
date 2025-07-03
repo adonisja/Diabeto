@@ -604,436 +604,64 @@ firebase deploy --only firestore:rules
 **Compliance Notes:**
 This ruleset supports HIPAA-style requirements for medical record systems with proper access controls, audit trails, and data segregation.
 
-### Issue: useAuthNavigation Hook - LogService Parameter Order Mismatch
-
-**Problem:**
-Multiple TypeScript errors in `useAuthNavigation.ts` hook due to incorrect parameter order when calling `logAction` function:
-```
-Argument of type '"UNAUTHENTICATED_ACCESS_ATTEMPT"' is not assignable to parameter of type 'UserRole'.
-```
-
-**Root Cause:**
-The `logAction` function signature was updated to include a `username` parameter, but the hook was still using the old parameter order:
-
-**Old LogService signature:**
-```typescript
-logAction(uid, email, role, action, outcome, details)
-```
-
-**New LogService signature:**
-```typescript
-logAction(uid, username, email, role, action, outcome, details)
-```
-
-**Issues Fixed:**
-
-1. **Parameter Order Mismatch:**
-   ```typescript
-   // Before (Wrong):
-   logAction('anonymous-uid', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
-   //        uid           email         role       action                    outcome details
-   
-   // After (Correct):
-   logAction('anonymous-uid', 'anonymous-user', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
-   //        uid           username       email         role       action                    outcome details
-   ```
-
-2. **Missing Username Parameter:**
-   ```typescript
-   // Added username extraction for authenticated users:
-   const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
-   
-   // All logAction calls now include username parameter:
-   logAction(user.uid, userUsernameForLog, userEmailForLog, role, action, outcome, details)
-   ```
-
-3. **Anonymous User Logging:**
-   ```typescript
-   // Proper handling for unauthenticated users:
-   logAction(
-     'anonymous-uid', 
-     'anonymous-user',     // ← Added username
-     'anonymous-email', 
-     'unverified', 
-     'UNAUTHENTICATED_ACCESS_ATTEMPT', 
-     null, 
-     { path: currentFullPath }
-   );
-   ```
-
-**All LogAction Calls Fixed:**
-- ✅ Unauthenticated access attempts
-- ✅ Unverified user logout
-- ✅ Profile completion redirects  
-- ✅ Login redirects to protected areas
-
-**Security Benefit:**
-The logging now properly captures both email and username for better audit trail identification, supporting medical records compliance requirements.
-
-**Key Lesson:**
-When updating function signatures, ensure all calling code is updated to match the new parameter order and required fields.
-
-### Issue: Username Field Missing from User Profile Structure
-
-**Problem:**
-The `useAuthNavigation` hook was generating usernames from email addresses instead of using actual usernames collected during signup:
-```typescript
-// Problematic approach:
-const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
-```
-
-**Root Cause Analysis:**
-1. **Signup form collects username** but doesn't save it to user profile document
-2. **UserProfile interface** didn't include username field
-3. **LogService expects username** but it's not available in userProfile
-4. **Workaround used email** to generate fake username (not ideal for medical records)
-
-**Solution Implemented:**
-
-1. **Added username to UserProfile interface:**
-   ```typescript
-   export interface UserProfile {
-     uid: string;
-     email: string;
-     username?: string; // ← Added username field
-     role: 'patient' | 'caretaker' | 'doctor' | 'admin' | 'unverified';
-     // ...other fields
-   }
-   ```
-
-2. **Updated useAuthNavigation to prefer real username:**
-   ```typescript
-   // Improved approach with fallback:
-   const userUsernameForLog = userProfile?.username ?? user?.email?.split('@')[0] ?? 'anonymous-user';
-   ```
-
-**Outstanding Work Required:**
-
-To complete the username implementation, you need to:
-
-1. **Update Signup.tsx** to save username to user profile:
-   ```typescript
-   // After user creation, update/create profile with username
-   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
-   await setDoc(userDocRef, {
-     uid: user.uid,
-     email: user.email,
-     username: username.trim(), // ← Save the username
-     role: 'unverified',
-     profileCompleted: false,
-     createdAt: serverTimestamp(),
-     updatedAt: serverTimestamp()
-   });
-   ```
-
-2. **Update AuthContext default profile creation** to include username field
-
-3. **Update userProfile.tsx** to allow username editing/completion
-
-4. **Update Firestore rules** to validate username field if required
-
-**Medical Records Compliance:**
-Having proper usernames (not derived from email) improves audit trail quality and user identification in medical record systems. This supports better compliance with healthcare data regulations.
-
-**Current State:**
-- ✅ Interface updated to include username field
-- ✅ Hook updated to prefer real username over email-derived username
-- ⚠️ Signup form still needs to save username to profile
-- ⚠️ AuthContext still needs to handle username in default profiles
-
-### Issue: Signup Form Missing User Profile Creation
-
-**Problem:**
-The Signup form was collecting user information (username, email) but only creating the Firebase Auth account, not saving the user profile to Firestore. This meant:
-1. Username was lost after signup
-2. AuthContext had to create incomplete default profiles
-3. LogService couldn't access real usernames
-
-**What Was Missing from Signup.tsx:**
-
-1. **Firestore imports** - `doc`, `setDoc`, `serverTimestamp`
-2. **Database reference** - Import `db` from firebaseConfig
-3. **Profile document creation** - `setDoc` call to save user profile
-4. **Environment variable** - `FIREBASE_APP_ID` for proper document path
-5. **LogService parameter fixes** - Wrong parameter order
-
-**Solution Implemented:**
-
-1. **Added missing imports:**
-   ```typescript
-   import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-   import { auth, db } from "@/firebase/firebaseConfig";
-   ```
-
-2. **Added profile creation after user account creation:**
-   ```typescript
-   // Create user profile document in Firestore
-   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
-   await setDoc(userDocRef, {
-       uid: user.uid,
-       email: user.email || '',
-       username: username.trim(), // ← Now saves the username!
-       role: 'unverified',
-       profileCompleted: false,
-       createdAt: serverTimestamp(),
-       updatedAt: serverTimestamp()
-   });
-   ```
-
-3. **Fixed LogService parameter order:**
-   ```typescript
-   // Correct order: uid, username, email, role, action, outcome, details
-   await logAction(
-       user.uid,
-       username.trim(),
-       user.email ?? 'no-email-provided',
-       'unverified',
-       'EMAIL_SIGNUP_SUCCESS',
-       'success',
-       { username: username.trim() }
-   );
-   ```
-
-**Benefits:**
-- ✅ **Username preservation** - Username from signup is now saved to profile
-- ✅ **Complete profile creation** - No need for AuthContext to create incomplete defaults
-- ✅ **Better audit trail** - LogService now has access to real usernames
-- ✅ **Firestore rules compliance** - Profile documents match expected structure
-- ✅ **Medical records integrity** - Proper user identification from registration
-
-**Signup Flow Now:**
-1. Create Firebase Auth account ✅
-2. Create Firestore user profile with username ✅
-3. Send email verification ✅
-4. Log successful signup with real username ✅
-5. Redirect to signin ✅
-
-This completes the missing piece of the user registration process and ensures usernames are properly preserved throughout the application lifecycle.
-
-## Device ID Logging Enhancement
-
-### Device Information Capture
-**Date Added**: 2025-07-02
-
-#### Overview
-Enhanced audit logging by capturing device information for medical-grade compliance and security monitoring.
-
-#### Changes Made:
-1. **New Utility Module** (`utils/deviceInfo.ts`):
-   - Centralized device information collection
-   - Uses `expo-device` library for cross-platform device identification
-   - Provides consistent device ID format across the app
-   - Fallback mechanism for cases where device info is unavailable
-
-2. **Device ID Integration**:
-   - **Signin.tsx**: Added device ID capture and logging
-   - **Signup.tsx**: Added device ID capture and logging  
-   - **useAuthNavigation.ts**: Added device ID to all navigation-related logs
-
-3. **LogService Enhancement**:
-   - All `logAction` calls now include device information
-   - Device ID included in the `details` object for audit trails
-   - Timestamps added for better chronological tracking
-
-#### Device Information Captured:
-- **Device Type**: Phone, tablet, desktop, etc.
-- **OS Name**: iOS, Android, Web, etc.
-- **OS Version**: Operating system version
-- **Model Name**: Device model (when available)
-- **Brand**: Device manufacturer
-- **Generated Device ID**: Composite identifier for logging
-
-#### Security Considerations:
-- Device IDs are generated, not actual MAC addresses (for privacy)
-- Information is limited to what's needed for audit compliance
-- No personally identifiable hardware information is stored
-- Falls back gracefully if device info is unavailable
-
-#### Usage Example:
-```typescript
-import { getDeviceInfo, getSimpleDeviceId } from '../utils/deviceInfo';
-
-// Get comprehensive device info
-const deviceInfo = await getDeviceInfo();
-
-// Get simple device ID for logging
-const deviceId = await getSimpleDeviceId();
-
-// Use in logging
-await logAction(uid, username, email, role, action, outcome, {
-  deviceId,
-  timestamp: new Date().toISOString(),
-  // other details...
-});
-```
-
-#### ✅ **Issue Resolution Status**:
-**Fixed on**: 2025-07-02
-
-All identified issues in `Signin.tsx` have been successfully resolved:
-
-1. ✅ **Fixed `expo-device` Compatibility**: 
-   - Installed correct version (`expo-device@~6.0.2`)
-   - Created platform-aware device utility that works on web and mobile
-   - Added graceful fallback for unsupported platforms
-
-2. ✅ **Fixed Firebase Persistence Error**: 
-   - Updated `firebaseConfig.ts` to use platform-specific persistence
-   - Web uses default browser persistence, mobile uses AsyncStorage
-   - Resolved `getReactNativePersistence` error on web
-
-3. ✅ **Device ID Logging Working**: 
-   - Successfully capturing device information on all platforms
-   - Web devices get browser-based identifiers
-   - Mobile devices get hardware-based identifiers
-   - All authentication actions now include device context
-
-4. ✅ **Comprehensive Testing**: 
-   - App starts successfully on web platform
-   - No runtime errors related to device identification
-   - Authentication flows ready for testing with device logging
-
-The app is now ready for production with robust device identification and audit logging capabilities that work across all supported platforms (iOS, Android, Web).
-
-## Username/Email Signin Enhancement
-
-### Enhanced Authentication Input
-**Date Added**: 2025-07-02
-
-#### Overview
-Enhanced the signin process to accept both usernames and email addresses, providing users with more flexible authentication options.
-
-#### Changes Made:
-
-1. **Updated Signin Interface** (`app/(auth)/Signin.tsx`):
-   - Changed input field from "Email" to "Username or Email"
-   - Updated placeholder text to reflect dual input capability
-   - Changed keyboard type from `email-address` to `default` for username support
-
-2. **Smart Input Detection**:
-   - Added `isEmailFormat()` helper function to detect email vs username input
-   - Uses regex pattern to distinguish between email addresses and usernames
-   - Automatically handles different input types transparently
-
-3. **Username Resolution**:
-   - Added `findEmailByUsername()` function to query Firestore for username-to-email mapping
-   - Searches the users collection for matching usernames (case-insensitive)
-   - Retrieves associated email address for Firebase authentication
-
-4. **Enhanced Signup Process** (`app/(auth)/Signup.tsx`):
-   - Added username uniqueness validation before account creation
-   - Added `isUsernameAvailable()` function to check for duplicate usernames
-   - Usernames are stored in lowercase for consistent querying
-   - Provides clear error messages for taken usernames
-
-5. **Improved Error Handling**:
-   - Updated error messages to reflect username/email support
-   - Better error context for failed authentication attempts
-   - Enhanced logging with both username and email information
-
-#### Technical Implementation:
-
-```typescript
-// Email detection
-const isEmailFormat = (input: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(input);
-};
-
-// Username to email resolution
-const findEmailByUsername = async (username: string): Promise<string | null> => {
-    const usersCollectionRef = collection(db, 'artifacts', FIREBASE_APP_ID, 'users');
-    const q = query(usersCollectionRef, where('username', '==', username.toLowerCase()));
-    const querySnapshot = await getDocs(q);
-    
-    if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data().email;
-    }
-    return null;
-};
-```
-
-#### Security Features:
-- Case-insensitive username matching prevents duplicate accounts
-- Username uniqueness enforced during signup
-- All usernames stored in lowercase for consistency
-- Comprehensive audit logging includes both username and email
-- Device ID logging maintained for enhanced security tracking
-
-#### User Experience Improvements:
-- **Flexible Login**: Users can sign in with either username or email
-- **Clear Validation**: Real-time feedback on username availability during signup
-- **Consistent Interface**: Single input field handles both authentication methods
-- **Better Error Messages**: Context-aware error messages for different input types
-
-#### Database Schema:
-- User profiles include both `email` and `username` fields
-- Usernames stored in lowercase for consistent querying
-- Firestore queries optimized for username lookups
-- Maintains backward compatibility with email-only authentication
-
-This enhancement significantly improves user experience while maintaining security and adding comprehensive audit capabilities for medical-grade compliance.
-
----
-
-#### iOS-Specific Form Enhancements
-**Date Added**: 2025-07-02
-
-Added iOS-specific TextInput attributes for better password manager integration and user experience:
-
-**Signup Form (`Signup.tsx`)**:
-- `textContentType="username"` + `autoComplete="username"` for username field
-- `textContentType="emailAddress"` + `autoComplete="email"` for email field  
-- `textContentType="newPassword"` + `autoComplete="new-password"` for both password fields
-
-**Signin Form (`Signin.tsx`)**:
-- `textContentType="username"` + `autoComplete="username"` for username/email field
-- `textContentType="password"` + `autoComplete="current-password"` for password field
-
-**Benefits**:
-- **iOS Keychain Integration**: Seamless password manager suggestions
-- **AutoFill Support**: iOS AutoFill will properly categorize and suggest credentials
-- **Accessibility**: Better screen reader support and field identification
-- **Security**: Proper password field handling prevents accidental exposure
-- **UX**: Smoother form completion with appropriate keyboard and suggestions
-
-These attributes ensure optimal integration with iOS password management and accessibility features while maintaining cross-platform compatibility.
-
----
-
-## 🚀 Recent Enhancements (2025-07-02)
-
-### ✅ **Username/Email Authentication System**
-- **Flexible Login**: Users can sign in with either username or email address
-- **Smart Input Detection**: Automatic detection of email vs username format
-- **Username Resolution**: Firestore lookup to resolve usernames to email addresses
-- **Uniqueness Validation**: Real-time username availability checking during signup
-- **Case-Insensitive Storage**: Usernames stored in lowercase for consistency
-
-### ✅ **Email Verification Security**
-- **Mandatory Verification**: Unverified users cannot access protected areas
-- **Immediate Sign-Out**: Users with unverified emails are automatically signed out
-- **Clear User Feedback**: Detailed error messages guide users to verify their email
-- **Proper Logging Order**: Audit logs created before sign-out to maintain authentication context
-
-### ✅ **Device Identification & Audit Logging**
-- **Cross-Platform Device ID**: Consistent device identification across iOS, Android, and Web
-- **Medical-Grade Audit Trail**: All user actions logged with device and timestamp information
-- **Privacy-Safe Fingerprinting**: Generated device IDs without personal hardware data
-- **Compliance Logging**: Comprehensive action tracking for medical record regulations
-
-### ✅ **iOS-Specific Enhancements**
-- **Password Manager Integration**: Proper `textContentType` and `autoComplete` attributes
-- **Keychain Support**: Seamless iOS password manager suggestions
-- **AutoFill Optimization**: Correct field categorization for iOS AutoFill
-- **Accessibility**: Enhanced screen reader support and field identification
-
-### ✅ **Medical-Grade Firestore Security**
-- **Role-Based Access Control**: Strict permissions based on user roles
-- **Relationship-Based Data Access**: Doctors/caretakers can only access linked patients
-- **Immutable Audit Logs**: All actions permanently recorded for compliance
-- **Data Ownership Protection**: Users control access to their own medical records
-- **Field Validation**: Comprehensive data type and format validation
+## 🔗 Integration Patterns
+
+### Service Layer Architecture
+The application follows a clean service layer architecture that separates concerns and enables maintainable, testable code:
+
+- **Authentication Service**: Centralized user authentication and session management
+- **Database Service**: Abstracted data access with consistent error handling
+- **Logging Service**: Comprehensive audit trail for compliance and debugging
+- **Device Service**: Cross-platform device identification and information capture
+- **Navigation Service**: Centralized routing logic with security controls
+
+### Cross-Platform Compatibility
+Built with React Native and Expo, the application provides:
+
+- **Universal Codebase**: Single codebase for iOS, Android, and Web
+- **Platform-Specific Optimizations**: Tailored experiences for each platform
+- **Native Feature Integration**: Access to device-specific capabilities
+- **Consistent User Experience**: Unified design system across all platforms
+
+### Security Integration
+Security is integrated at every layer:
+
+- **Firebase Authentication**: Industry-standard authentication with email verification
+- **Firestore Security Rules**: Database-level access controls and validation
+- **Role-Based Access Control**: Granular permissions based on user roles
+- **Audit Logging**: Comprehensive activity tracking for compliance
+- **Device Fingerprinting**: Enhanced security through device identification
+
+### Medical Compliance Framework
+The architecture supports healthcare data requirements:
+
+- **Audit Trail Compliance**: Immutable logging of all user actions
+- **Data Access Controls**: Strict role-based and relationship-based permissions
+- **Privacy Protection**: Secure handling of sensitive medical information
+- **Regulatory Compliance**: Framework supports HIPAA-style requirements
+
+## 🚀 Future Enhancements
+
+### Planned Features
+- **Real-time Data Synchronization**: Live updates across connected devices
+- **Advanced Analytics**: Health trend analysis and insights
+- **Integration APIs**: Third-party medical device and service integration
+- **Offline Capability**: Enhanced offline functionality with sync
+- **Advanced Security**: Multi-factor authentication and biometric support
+
+### Scalability Considerations
+- **Microservices Architecture**: Potential migration to service-based architecture
+- **Edge Computing**: Reducing latency through distributed processing
+- **Advanced Caching**: Intelligent data caching for improved performance
+- **Load Balancing**: Horizontal scaling for high availability
+
+### Technical Debt Management
+- **Code Quality**: Continuous refactoring and improvement
+- **Testing Coverage**: Comprehensive automated testing suite
+- **Documentation**: Maintaining up-to-date technical documentation
+- **Performance Optimization**: Ongoing performance monitoring and tuning
+
+> **Note**: Detailed implementation plans and technical specifications are maintained in internal development documentation.
 
 ## 🔐 Security Architecture
 

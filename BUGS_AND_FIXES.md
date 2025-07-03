@@ -1123,7 +1123,7 @@ ERROR  ❌ LogService: Error logging action: [FirebaseError: Function addDoc() c
 1. **Parameter Order Mismatch**: LogService function calls were using old parameter order without username
 2. **Undefined Values in Details**: `userProfile?.firstName` was undefined and being passed to Firestore
 3. **Missing Username Parameter**: Calls were missing the username parameter that was added to LogService
-4. **Multiple Files Affected**: Both `userProfile.tsx` and `(admin)/index.tsx` had the same issues
+4. **Recurring Pattern**: Same issue occurred in multiple files that weren't previously fixed
 
 **LogService Expected Signature:**
 ```typescript
@@ -1545,7 +1545,7 @@ Multiple TypeScript errors in `useAuthNavigation.ts` hook due to incorrect param
 
 **Error Messages:**
 ```
-Argument of type '"UNVERIFIED_USER_LOGOUT"' is not assignable to parameter of type 'UserRole'.
+Argument of type '"UNAUTHENTICATED_ACCESS_ATTEMPT"' is not assignable to parameter of type 'UserRole'.
 ```
 
 **Root Cause Analysis:**
@@ -1561,29 +1561,53 @@ logAction(uid, email, role, action, outcome, details)
 logAction(uid, username, email, role, action, outcome, details)
 ```
 
-**Solution Applied:**
-1. **Fixed parameter order**: Updated all `logAction` calls to match new signature
-2. **Added username parameter**: Extracted username from user profile or generated from email
-3. **Anonymous user handling**: Proper handling for unauthenticated users
-4. **Enhanced logging**: Better audit trail with both username and email
+**Issues Fixed:**
 
-**Fixed Code:**
-```typescript
-// Before (Wrong):
-logAction('anonymous-uid', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
+1. **Parameter Order Mismatch:**
+   ```typescript
+   // Before (Wrong):
+   logAction('anonymous-uid', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
+   //        uid           email         role       action                    outcome details
+   
+   // After (Correct):
+   logAction('anonymous-uid', 'anonymous-user', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
+   //        uid           username       email         role       action                    outcome details
+   ```
 
-// After (Correct):
-logAction('anonymous-uid', 'anonymous-user', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
-```
+2. **Missing Username Parameter:**
+   ```typescript
+   // Added username extraction for authenticated users:
+   const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
+   
+   // All logAction calls now include username parameter:
+   logAction(user.uid, userUsernameForLog, userEmailForLog, role, action, outcome, details)
+   ```
+
+3. **Anonymous User Logging:**
+   ```typescript
+   // Proper handling for unauthenticated users:
+   logAction(
+     'anonymous-uid', 
+     'anonymous-user',     // ← Added username
+     'anonymous-email', 
+     'unverified', 
+     'UNAUTHENTICATED_ACCESS_ATTEMPT', 
+     null, 
+     { path: currentFullPath }
+   );
+   ```
+
+**All LogAction Calls Fixed:**
+- ✅ Unauthenticated access attempts
+- ✅ Unverified user logout
+- ✅ Profile completion redirects  
+- ✅ Login redirects to protected areas
+
+**Security Benefit:**
+The logging now properly captures both email and username for better audit trail identification, supporting medical records compliance requirements.
 
 **Key Lesson:**
 When updating function signatures, ensure all calling code is updated to match the new parameter order and required fields.
-
-**Prevention Strategy:**
-- Use TypeScript to catch parameter mismatches early
-- Update all function calls when changing signatures
-- Add comprehensive tests for function parameter validation
-- Use consistent parameter naming across the codebase
 
 ---
 
@@ -1593,48 +1617,71 @@ When updating function signatures, ensure all calling code is updated to match t
 **Severity**: 🟡 Major  
 **Status**: ✅ Fixed
 
-**Problem Description:**
-The `useAuthNavigation` hook was generating usernames from email addresses instead of using actual usernames collected during signup.
-
-**Problematic Code:**
+**Problem:**
+The `useAuthNavigation` hook was generating usernames from email addresses instead of using actual usernames collected during signup:
 ```typescript
 // Problematic approach:
 const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
 ```
 
 **Root Cause Analysis:**
-1. **Signup form collected username** but didn't save it to user profile document
+1. **Signup form collects username** but doesn't save it to user profile document
 2. **UserProfile interface** didn't include username field
-3. **LogService expected username** but it wasn't available in userProfile
+3. **LogService expects username** but it's not available in userProfile
 4. **Workaround used email** to generate fake username (not ideal for medical records)
 
-**Solution Applied:**
-1. **Added username to UserProfile interface**: Added optional `username?: string` field
-2. **Updated useAuthNavigation**: Prefer real username over email-derived username
-3. **Improved logging**: Better user identification in audit trails
+**Solution Implemented:**
 
-**Fixed Code:**
-```typescript
-export interface UserProfile {
-  uid: string;
-  email: string;
-  username?: string; // ← Added username field
-  role: 'patient' | 'caretaker' | 'doctor' | 'admin' | 'unverified';
-  // ...other fields
-}
+1. **Added username to UserProfile interface:**
+   ```typescript
+   export interface UserProfile {
+     uid: string;
+     email: string;
+     username?: string; // ← Added username field
+     role: 'patient' | 'caretaker' | 'doctor' | 'admin' | 'unverified';
+     // ...other fields
+   }
+   ```
 
-// Improved approach with fallback:
-const userUsernameForLog = userProfile?.username ?? user?.email?.split('@')[0] ?? 'anonymous-user';
-```
+2. **Updated useAuthNavigation to prefer real username:**
+   ```typescript
+   // Improved approach with fallback:
+   const userUsernameForLog = userProfile?.username ?? user?.email?.split('@')[0] ?? 'anonymous-user';
+   ```
+
+**Outstanding Work Required:**
+
+To complete the username implementation, you need to:
+
+1. **Update Signup.tsx** to save username to user profile:
+   ```typescript
+   // After user creation, update/create profile with username
+   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
+   await setDoc(userDocRef, {
+     uid: user.uid,
+     email: user.email,
+     username: username.trim(), // ← Save the username
+     role: 'unverified',
+     profileCompleted: false,
+     createdAt: serverTimestamp(),
+     updatedAt: serverTimestamp()
+   });
+   ```
+
+2. **Update AuthContext default profile creation** to include username field
+
+3. **Update userProfile.tsx** to allow username editing/completion
+
+4. **Update Firestore rules** to validate username field if required
 
 **Medical Records Compliance:**
-Having proper usernames (not derived from email) improves audit trail quality and user identification in medical record systems.
+Having proper usernames (not derived from email) improves audit trail quality and user identification in medical record systems. This supports better compliance with healthcare data regulations.
 
-**Prevention Strategy:**
-- Design complete data structures from the start
-- Ensure all collected user data is properly stored
-- Use real data instead of generated fallbacks when possible
-- Test data collection and storage thoroughly
+**Current State:**
+- ✅ Interface updated to include username field
+- ✅ Hook updated to prefer real username over email-derived username
+- ⚠️ Signup form still needs to save username to profile
+- ⚠️ AuthContext still needs to handle username in default profiles
 
 ---
 
@@ -1651,150 +1698,174 @@ The Signup form was collecting user information (username, email) but only creat
 3. LogService couldn't access real usernames
 
 **What Was Missing from Signup.tsx:**
-1. **Firestore imports**: `doc`, `setDoc`, `serverTimestamp`
-2. **Database reference**: Import `db` from firebaseConfig
-3. **Profile document creation**: `setDoc` call to save user profile
-4. **Environment variable**: `FIREBASE_APP_ID` for proper document path
-5. **LogService parameter fixes**: Wrong parameter order
 
-**Solution Applied:**
-1. **Added missing imports**: All necessary Firestore functions
-2. **Added profile creation**: Complete user profile document creation after auth account
-3. **Fixed LogService calls**: Correct parameter order with real username
-4. **Complete signup flow**: Firebase Auth + Firestore profile + logging
+1. **Firestore imports** - `doc`, `setDoc`, `serverTimestamp`
+2. **Database reference** - Import `db` from firebaseConfig
+3. **Profile document creation** - `setDoc` call to save user profile
+4. **Environment variable** - `FIREBASE_APP_ID` for proper document path
+5. **LogService parameter fixes** - Wrong parameter order
 
-**Fixed Code:**
+**Solution Implemented:**
+
+1. **Added missing imports:**
+   ```typescript
+   import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+   import { auth, db } from "@/firebase/firebaseConfig";
+   ```
+
+2. **Added profile creation after user account creation:**
+   ```typescript
+   // Create user profile document in Firestore
+   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
+   await setDoc(userDocRef, {
+       uid: user.uid,
+       email: user.email || '',
+       username: username.trim(), // ← Now saves the username!
+       role: 'unverified',
+       profileCompleted: false,
+       createdAt: serverTimestamp(),
+       updatedAt: serverTimestamp()
+   });
+   ```
+
+3. **Fixed LogService parameter order:**
+   ```typescript
+   // Correct order: uid, username, email, role, action, outcome, details
+   await logAction(
+       user.uid,
+       username.trim(),
+       user.email ?? 'no-email-provided',
+       'unverified',
+       'EMAIL_SIGNUP_SUCCESS',
+       'success',
+       { username: username.trim() }
+   );
+   ```
+
+**Benefits:**
+- ✅ **Username preservation** - Username from signup is now saved to profile
+- ✅ **Complete profile creation** - No need for AuthContext to create incomplete defaults
+- ✅ **Better audit trail** - LogService now has access to real usernames
+- ✅ **Firestore rules compliance** - Profile documents match expected structure
+- ✅ **Medical records integrity** - Proper user identification from registration
+
+**Signup Flow Now:**
+1. Create Firebase Auth account ✅
+2. Create Firestore user profile with username ✅
+3. Send email verification ✅
+4. Log successful signup with real username ✅
+5. Redirect to signin ✅
+
+This completes the missing piece of the user registration process and ensures usernames are properly preserved throughout the application lifecycle.
+
+---
+
+## Device ID Logging Enhancement
+
+### Device Information Capture
+**Date Added**: 2025-07-02  
+**Severity**: 🟡 Major  
+**Status**: ✅ Fixed
+
+#### Overview
+Enhanced audit logging by capturing device information for medical-grade compliance and security monitoring.
+
+#### Changes Made:
+1. **New Utility Module** (`utils/deviceInfo.ts`):
+   - Centralized device information collection
+   - Uses `expo-device` library for cross-platform device identification
+   - Provides consistent device ID format across the app
+   - Fallback mechanism for cases where device info is unavailable
+
+2. **Device ID Integration**:
+   - **Signin.tsx**: Added device ID capture and logging
+   - **Signup.tsx**: Added device ID capture and logging  
+   - **useAuthNavigation.ts**: Added device ID to all navigation-related logs
+
+3. **LogService Enhancement**:
+   - All `logAction` calls now include device information
+   - Device ID included in the `details` object for audit trails
+   - Timestamps added for better chronological tracking
+
+#### Device Information Captured:
+- **Device Type**: Phone, tablet, desktop, etc.
+- **OS Name**: iOS, Android, Web, etc.
+- **OS Version**: Operating system version
+- **Model Name**: Device model (when available)
+- **Brand**: Device manufacturer
+- **Generated Device ID**: Composite identifier for logging
+
+#### Security Considerations:
+- Device IDs are generated, not actual MAC addresses (for privacy)
+- Information is limited to what's needed for audit compliance
+- No personally identifiable hardware information is stored
+- Falls back gracefully if device info is unavailable
+
+#### Usage Example:
 ```typescript
-// Added profile creation after user account creation:
-const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
-await setDoc(userDocRef, {
-    uid: user.uid,
-    email: user.email || '',
-    username: username.trim(), // ← Now saves the username!
-    role: 'unverified',
-    profileCompleted: false,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
+import { getDeviceInfo, getSimpleDeviceId } from '../utils/deviceInfo';
+
+// Get comprehensive device info
+const deviceInfo = await getDeviceInfo();
+
+// Get simple device ID for logging
+const deviceId = await getSimpleDeviceId();
+
+// Use in logging
+await logAction(uid, username, email, role, action, outcome, {
+  deviceId,
+  timestamp: new Date().toISOString(),
+  // other details...
 });
 ```
 
-**Benefits:**
-- ✅ **Username preservation**: Username from signup is now saved to profile
-- ✅ **Complete profile creation**: No need for AuthContext to create incomplete defaults
-- ✅ **Better audit trail**: LogService now has access to real usernames
-- ✅ **Firestore rules compliance**: Profile documents match expected structure
-- ✅ **Medical records integrity**: Proper user identification from registration
+#### Security Features:
+- Case-insensitive username matching prevents duplicate accounts
+- Username uniqueness enforced during signup
+- All usernames stored in lowercase for consistency
+- Comprehensive audit logging includes both username and email
+- Device ID logging maintained for enhanced security tracking
 
-**Prevention Strategy:**
-- Design complete user registration flows from the start
-- Don't rely on context providers to create missing data
-- Test complete user journeys, not just individual components
-- Ensure all collected data is properly persisted
+#### User Experience Improvements:
+- **Flexible Login**: Users can sign in with either username or email
+- **Clear Validation**: Real-time feedback on username availability during signup
+- **Consistent Interface**: Single input field handles both authentication methods
+- **Better Error Messages**: Context-aware error messages for different input types
 
----
+#### Database Schema:
+- User profiles include both `email` and `username` fields
+- Usernames stored in lowercase for consistent querying
+- Firestore queries optimized for username lookups
+- Maintains backward compatibility with email-only authentication
 
-## 📊 Bug Summary Statistics
-
-### By Severity
-- **🔴 Critical**: 8 bugs (57.1%)
-- **🟡 Major**: 5 bugs (35.7%)
-- **🟢 Minor**: 1 bug (7.1%)
-
-### By Category
-- **Authentication/Navigation**: 6 bugs
-- **Data Management**: 5 bugs
-- **Security/Permissions**: 2 bugs
-- **UI/UX**: 1 bug
-
-### By Resolution Time
-- **Same Day**: 14 bugs (100%)
-- **Average Resolution**: ~2-4 hours per bug
-
-### Security Issues
-- **Critical Security Vulnerabilities**: 1 bug (admin role self-assignment)
-- **Permission/Access Issues**: 3 bugs total
-- **Medical Compliance**: All security issues resolved
-
-## 🛡️ Prevention Strategies
-
-### Development Best Practices
-1. **Comprehensive Testing**: Test all user flows and edge cases
-2. **TypeScript Strict Mode**: Catch type mismatches early
-3. **Code Reviews**: Multiple eyes on complex logic
-4. **Documentation**: Keep architecture docs updated
-5. **Incremental Development**: Small, testable changes
-
-### Common Pitfalls to Avoid
-1. **useEffect Dependency Arrays**: Be careful with state that effects modify
-2. **Context Provider Duplication**: Use single source of truth
-3. **Parameter Order Changes**: Update all calling code when changing signatures
-4. **Incomplete Data Flows**: Ensure all collected data is properly stored
-5. **Platform-Specific Code**: Test on all target platforms
-
-### Debugging Strategies
-1. **Comprehensive Logging**: Add debug logs for complex flows
-2. **State Visualization**: Use React Developer Tools
-3. **Error Boundary Implementation**: Catch and handle errors gracefully
-4. **Performance Monitoring**: Track performance issues early
-5. **User Feedback Integration**: Collect real user experience data
+This enhancement significantly improves user experience while maintaining security and adding comprehensive audit capabilities for medical-grade compliance.
 
 ---
 
-## 📝 Bug Report Template
+#### iOS-Specific Form Enhancements
+**Date Added**: 2025-07-02  
+**Severity**: 🟢 Minor  
+**Status**: ✅ Fixed
 
-When adding new bugs to this log, use this template:
+Added iOS-specific TextInput attributes for better password manager integration and user experience:
 
-```markdown
-### Bug #X: [Brief Description]
-**Date Encountered**: YYYY-MM-DD  
-**Date Fixed**: YYYY-MM-DD  
-**Severity**: 🔴 Critical / 🟡 Major / 🟢 Minor  
-**Status**: ✅ Fixed / ⚠️ In Progress / ❌ Open
+**Signup Form (`Signup.tsx`)**:
+- `textContentType="username"` + `autoComplete="username"` for username field
+- `textContentType="emailAddress"` + `autoComplete="email"` for email field  
+- `textContentType="newPassword"` + `autoComplete="new-password"` for both password fields
 
-**Problem Description:**
-[Detailed description of the issue]
+**Signin Form (`Signin.tsx`)**:
+- `textContentType="username"` + `autoComplete="username"` for username/email field
+- `textContentType="password"` + `autoComplete="current-password"` for password field
 
-**Error Messages:**
-```
-[Exact error messages if applicable]
-```
+**Benefits**:
+- **iOS Keychain Integration**: Seamless password manager suggestions
+- **AutoFill Support**: iOS AutoFill will properly categorize and suggest credentials
+- **Accessibility**: Better screen reader support and field identification
+- **Security**: Proper password field handling prevents accidental exposure
+- **UX**: Smoother form completion with appropriate keyboard and suggestions
 
-**Root Cause Analysis:**
-[What actually caused the problem]
-
-**Solution Applied:**
-[Step-by-step solution]
-
-**Fixed Code:**
-```typescript
-[Code snippets showing the fix]
-```
-
-**Prevention Strategy:**
-[How to avoid this type of bug in the future]
-```
-
----
-
-## 🔍 Future Improvements
-
-### Automated Testing
-- [ ] Unit tests for all utility functions
-- [ ] Integration tests for authentication flows
-- [ ] E2E tests for complete user journeys
-- [ ] Performance regression tests
-
-### Monitoring & Alerting
-- [ ] Error tracking with detailed stack traces
-- [ ] Performance monitoring dashboard
-- [ ] User experience analytics
-- [ ] Security monitoring alerts
-
-### Development Process
-- [ ] Pre-commit hooks for code quality
-- [ ] Automated security scanning
-- [ ] Dependency vulnerability monitoring
-- [ ] Code coverage reporting
+These attributes ensure optimal integration with iOS password management and accessibility features while maintaining cross-platform compatibility.
 
 ---
 
