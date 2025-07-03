@@ -1,11 +1,12 @@
 // app/index.tsx
 
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../firebase/AuthContext';
 import { useState, useEffect } from 'react';
 import authCommonStyles from '../assets/styles/authStyles/commonAuthStyles';
+import appLandingStyles from '../assets/styles/appLandingStyles';
 
 export default function AppLandingScreen() {
     const router = useRouter();
@@ -150,28 +151,28 @@ export default function AppLandingScreen() {
                 colors={['#4c669f', '#3b5998', '#192f6a']}
                 style={authCommonStyles.backgroundGradient}
             >
-                <ScrollView contentContainerStyle={authLandingStyles.scrollContainer}>
-                    <View style={authLandingStyles.container}>
+                <ScrollView contentContainerStyle={appLandingStyles.scrollContainer}>
+                    <View style={appLandingStyles.container}>
                         {/* App Logo can go here */}
-                        {/* <Image source={require('../../assets/images/app-logo.png')} style={authLandingStyles.logo} /> */}
+                        {/* <Image source={require('../../assets/images/app-logo.png')} style={appLandingStyles.logo} /> */}
 
-                        <Text style={authLandingStyles.welcomeText}>
+                        <Text style={appLandingStyles.welcomeText}>
                             Welcome to Diabeto!
                         </Text>
-                        <Text style={authLandingStyles.descriptionText}>
+                        <Text style={appLandingStyles.descriptionText}>
                             Your personal assistant for managing diabetes with ease.
                         </Text>
 
                         {/* Status indicator with activity indicator if loading */}
-                        <View style={authLandingStyles.statusContainer}>
+                        <View style={appLandingStyles.statusContainer}>
                             {shouldShowActivityIndicator() ? (
                                 <ActivityIndicator 
                                     size="small" 
                                     color="#fff" 
-                                    style={authLandingStyles.activityIndicator}
+                                    style={appLandingStyles.activityIndicator}
                                 />
                             ) : null}
-                            <Text style={authLandingStyles.statusText}>
+                            <Text style={appLandingStyles.statusText}>
                                 {String(getStatusMessage())}
                             </Text>
                         </View>
@@ -179,7 +180,7 @@ export default function AppLandingScreen() {
                         <TouchableOpacity
                             style={[
                                 authCommonStyles.button,
-                                (!authCheckComplete || (isRedirecting && AUTO_REDIRECT_ENABLED)) && authLandingStyles.buttonDisabled
+                                (!authCheckComplete || (isRedirecting && AUTO_REDIRECT_ENABLED)) && appLandingStyles.buttonDisabled
                             ]}
                             onPress={handleStartApp}
                             disabled={!authCheckComplete || (isRedirecting && AUTO_REDIRECT_ENABLED)}
@@ -191,23 +192,23 @@ export default function AppLandingScreen() {
 
                         {/* Debug info for development */}
                         {__DEV__ ? (
-                            <View style={authLandingStyles.debugContainer}>
-                                <Text style={authLandingStyles.debugText}>
+                            <View style={appLandingStyles.debugContainer}>
+                                <Text style={appLandingStyles.debugText}>
                                     Debug Info:
                                 </Text>
-                                <Text style={authLandingStyles.debugText}>
+                                <Text style={appLandingStyles.debugText}>
                                     User: {user ? 'Yes' : 'No'} | Email Verified: {user?.emailVerified ? 'Yes' : 'No'}
                                 </Text>
-                                <Text style={authLandingStyles.debugText}>
+                                <Text style={appLandingStyles.debugText}>
                                     Profile: {userProfile ? 'Yes' : 'No'} | Profile Complete: {isProfileComplete ? 'Yes' : 'No'}
                                 </Text>
-                                <Text style={authLandingStyles.debugText}>
+                                <Text style={appLandingStyles.debugText}>
                                     Loading Auth: {loading ? 'Yes' : 'No'} | Loading Profile: {loadingProfile ? 'Yes' : 'No'}
                                 </Text>
-                                <Text style={authLandingStyles.debugText}>
+                                <Text style={appLandingStyles.debugText}>
                                     Auth Check Complete: {authCheckComplete ? 'Yes' : 'No'} | Timer: {authCheckTimer}s
                                 </Text>
-                                <Text style={authLandingStyles.debugText}>
+                                <Text style={appLandingStyles.debugText}>
                                     Auto-Redirect: {AUTO_REDIRECT_ENABLED ? 'Enabled' : 'Disabled'} | Redirecting: {isRedirecting ? 'Yes' : 'No'}
                                 </Text>
                             </View>
@@ -220,81 +221,3 @@ export default function AppLandingScreen() {
 }
 
 // Component-Specific Styles
-const authLandingStyles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#666',
-    },
-    scrollContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        paddingVertical: 40,
-    },
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    welcomeText: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    descriptionText: {
-        fontSize: 18,
-        color: '#eee',
-        textAlign: 'center',
-        marginBottom: 30,
-        lineHeight: 24,
-    },
-    statusContainer: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 30,
-        alignItems: 'center',
-        minHeight: 60,
-        justifyContent: 'center',
-    },
-    statusText: {
-        fontSize: 16,
-        color: '#fff',
-        marginBottom: 5,
-        textAlign: 'center',
-    },
-    activityIndicator: {
-        marginBottom: 10,
-    },
-    buttonDisabled: {
-        opacity: 0.6,
-    },
-    warningText: {
-        fontSize: 14,
-        color: '#ffeb3b',
-        textAlign: 'center',
-        fontStyle: 'italic',
-    },
-    debugContainer: {
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        borderRadius: 5,
-        padding: 10,
-        marginTop: 20,
-        maxWidth: '90%',
-    },
-    debugText: {
-        fontSize: 12,
-        color: '#ccc',
-        textAlign: 'center',
-        marginBottom: 2,
-    },
-});

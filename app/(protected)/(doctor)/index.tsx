@@ -13,7 +13,6 @@ export default function DoctorDashboard() {
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
 
-    // Since access control is now handled by the landing page, we don't need to check role here
     // The landing page ensures only doctor users can reach this screen
 
     const handleRefresh = () => {

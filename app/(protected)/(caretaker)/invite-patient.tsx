@@ -1,10 +1,11 @@
 // app/(protected)/(caretaker)/invite-patient.tsx
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../../../firebase/AuthContext';
 
 import commonAppStyles from '../../../assets/styles/protectedStyles/commonAppStyles';
+import invitePatientStyles from '../../../assets/styles/protectedStyles/caretakerStyles/invitePatientStyles';
 import { LinearGradient } from 'expo-linear-gradient';
 import InvitePatientForm from '../../../components/coreComponents/InvitePatientForm'; 
 
@@ -56,18 +57,18 @@ export default function InvitePatientScreen() {
             >
                 <Stack.Screen options={{ title: 'Invite Patient', headerShown: true, headerTintColor: '#fff', headerStyle: { backgroundColor: '#3b5998' } }} />
 
-                <ScrollView contentContainerStyle={styles.scrollContent}>
-                    <View style={styles.container}>
-                        <Text style={styles.title}>Invite a Patient</Text>
+                <ScrollView contentContainerStyle={invitePatientStyles.scrollContent}>
+                    <View style={invitePatientStyles.container}>
+                        <Text style={invitePatientStyles.title}>Invite a Patient</Text>
 
                         {/* Render the new component */}
                         <InvitePatientForm onInvitationSentSuccess={handleInvitationSuccess} />
 
                         <TouchableOpacity
-                            style={styles.backButton}
+                            style={invitePatientStyles.backButton}
                             onPress={() => router.back()}
                         >
-                            <Text style={styles.backButtonText}>Go Back</Text>
+                            <Text style={invitePatientStyles.backButtonText}>Go Back</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -76,34 +77,3 @@ export default function InvitePatientScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    scrollContent: {
-        flexGrow: 1,
-        justifyContent: 'center',
-    },
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    backButton: {
-        marginTop: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 25,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-    },
-    backButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-});

@@ -1,10 +1,11 @@
 // app/(auth)/index.tsx
 
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, Stack } from 'expo-router'; 
 import { LinearGradient } from 'expo-linear-gradient'; 
 
 import authCommonStyles from '../../assets/styles/authStyles/commonAuthStyles';
+import authLandingStyles from '../../assets/styles/authStyles/authLandingStyles';
 
 export default function AuthLandingScreen() { 
     // 1. Hook:
@@ -59,34 +60,3 @@ export default function AuthLandingScreen() {
     );
 }
 
-// 4. Component-Specific Styles:
-const authLandingStyles = StyleSheet.create({
-    scrollContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        paddingVertical: 40,
-    },
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    welcomeText: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    descriptionText: {
-        fontSize: 18,
-        color: '#eee',
-        textAlign: 'center',
-        marginBottom: 50,
-        lineHeight: 24,
-    },
-    buttonMargin: {
-        marginBottom: 15, // Space between Sign In and Sign Up buttons
-    },
-});
