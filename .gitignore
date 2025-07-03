@@ -157,6 +157,12 @@ firebaseConfig.ts
 # Firestore Rules (SENSITIVE - contains security model)
 firestore.rules
 
+# Internal Data Schemas (SENSITIVE - contains database structure)
+DATABASE_SCHEMA.md
+*_schema.md
+*_schema.ts
+internal_docs/
+
 # These files contain detailed internal information:
 # - PROJECT_STRUCTURE.md: Contains sensitive internal details
 # - REFACTORING_SUMMARY.md: Personal learning tool and internal notes
