@@ -6,7 +6,6 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
-    StyleSheet,
     ActivityIndicator,
     TextInput
 } from 'react-native';
@@ -25,6 +24,7 @@ import {
 } from 'firebase/firestore';
 import { logAction } from '../../firebase/LogService';
 import { Ionicons } from '@expo/vector-icons';
+import doctorRequestReviewStyles from '../../assets/styles/componentStyles/doctorRequestReviewStyles';
 
 interface DoctorRequest {
     id: string;
@@ -191,9 +191,9 @@ export default function DoctorRequestReview() {
 
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={doctorRequestReviewStyles.loadingContainer}>
                 <ActivityIndicator size="large" color="#8B0000" />
-                <Text style={styles.loadingText}>Loading doctor requests...</Text>
+                <Text style={doctorRequestReviewStyles.loadingText}>Loading doctor requests...</Text>
             </View>
         );
     }
@@ -201,87 +201,87 @@ export default function DoctorRequestReview() {
     return (
         <LinearGradient
             colors={['#8B0000', '#DC143C', '#FF6347']}
-            style={styles.container}
+            style={doctorRequestReviewStyles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.headerContainer}>
+            <ScrollView contentContainerStyle={doctorRequestReviewStyles.scrollContainer}>
+                <View style={doctorRequestReviewStyles.headerContainer}>
                     <Ionicons name="medical" size={40} color="#fff" />
-                    <Text style={styles.title}>Doctor Verification Requests</Text>
-                    <Text style={styles.subtitle}>
+                    <Text style={doctorRequestReviewStyles.title}>Doctor Verification Requests</Text>
+                    <Text style={doctorRequestReviewStyles.subtitle}>
                         Review and approve medical credential submissions
                     </Text>
                 </View>
 
                 {requests.length === 0 ? (
-                    <View style={styles.emptyContainer}>
+                    <View style={doctorRequestReviewStyles.emptyContainer}>
                         <Ionicons name="checkmark-circle" size={60} color="rgba(255,255,255,0.5)" />
-                        <Text style={styles.emptyText}>No pending doctor requests</Text>
-                        <Text style={styles.emptySubtext}>
+                        <Text style={doctorRequestReviewStyles.emptyText}>No pending doctor requests</Text>
+                        <Text style={doctorRequestReviewStyles.emptySubtext}>
                             All credential verification requests have been processed
                         </Text>
                     </View>
                 ) : (
                     requests.map((request) => (
-                        <View key={request.id} style={styles.requestCard}>
-                            <View style={styles.requestHeader}>
-                                <Text style={styles.requestTitle}>
+                        <View key={request.id} style={doctorRequestReviewStyles.requestCard}>
+                            <View style={doctorRequestReviewStyles.requestHeader}>
+                                <Text style={doctorRequestReviewStyles.requestTitle}>
                                     {request.userName}
                                 </Text>
-                                <View style={styles.statusBadge}>
-                                    <Text style={styles.statusText}>PENDING</Text>
+                                <View style={doctorRequestReviewStyles.statusBadge}>
+                                    <Text style={doctorRequestReviewStyles.statusText}>PENDING</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.infoLabel}>Email:</Text>
-                                <Text style={styles.infoValue}>{request.userEmail}</Text>
+                            <View style={doctorRequestReviewStyles.requestInfo}>
+                                <Text style={doctorRequestReviewStyles.infoLabel}>Email:</Text>
+                                <Text style={doctorRequestReviewStyles.infoValue}>{request.userEmail}</Text>
                             </View>
 
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.infoLabel}>Medical License:</Text>
-                                <Text style={styles.infoValue}>{request.medicalLicenseNumber}</Text>
+                            <View style={doctorRequestReviewStyles.requestInfo}>
+                                <Text style={doctorRequestReviewStyles.infoLabel}>Medical License:</Text>
+                                <Text style={doctorRequestReviewStyles.infoValue}>{request.medicalLicenseNumber}</Text>
                             </View>
 
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.infoLabel}>Medical School:</Text>
-                                <Text style={styles.infoValue}>{request.medicalSchool}</Text>
+                            <View style={doctorRequestReviewStyles.requestInfo}>
+                                <Text style={doctorRequestReviewStyles.infoLabel}>Medical School:</Text>
+                                <Text style={doctorRequestReviewStyles.infoValue}>{request.medicalSchool}</Text>
                             </View>
 
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.infoLabel}>Graduation Year:</Text>
-                                <Text style={styles.infoValue}>{request.graduationYear}</Text>
+                            <View style={doctorRequestReviewStyles.requestInfo}>
+                                <Text style={doctorRequestReviewStyles.infoLabel}>Graduation Year:</Text>
+                                <Text style={doctorRequestReviewStyles.infoValue}>{request.graduationYear}</Text>
                             </View>
 
-                            <View style={styles.requestInfo}>
-                                <Text style={styles.infoLabel}>Experience:</Text>
-                                <Text style={styles.infoValue}>{request.yearsExperience} years</Text>
+                            <View style={doctorRequestReviewStyles.requestInfo}>
+                                <Text style={doctorRequestReviewStyles.infoLabel}>Experience:</Text>
+                                <Text style={doctorRequestReviewStyles.infoValue}>{request.yearsExperience} years</Text>
                             </View>
 
                             {request.specialization && (
-                                <View style={styles.requestInfo}>
-                                    <Text style={styles.infoLabel}>Specialization:</Text>
-                                    <Text style={styles.infoValue}>{request.specialization}</Text>
+                                <View style={doctorRequestReviewStyles.requestInfo}>
+                                    <Text style={doctorRequestReviewStyles.infoLabel}>Specialization:</Text>
+                                    <Text style={doctorRequestReviewStyles.infoValue}>{request.specialization}</Text>
                                 </View>
                             )}
 
                             {request.hospitalAffiliation && (
-                                <View style={styles.requestInfo}>
-                                    <Text style={styles.infoLabel}>Hospital/Clinic:</Text>
-                                    <Text style={styles.infoValue}>{request.hospitalAffiliation}</Text>
+                                <View style={doctorRequestReviewStyles.requestInfo}>
+                                    <Text style={doctorRequestReviewStyles.infoLabel}>Hospital/Clinic:</Text>
+                                    <Text style={doctorRequestReviewStyles.infoValue}>{request.hospitalAffiliation}</Text>
                                 </View>
                             )}
 
                             {request.additionalInfo && (
-                                <View style={styles.requestInfo}>
-                                    <Text style={styles.infoLabel}>Additional Info:</Text>
-                                    <Text style={styles.infoValue}>{request.additionalInfo}</Text>
+                                <View style={doctorRequestReviewStyles.requestInfo}>
+                                    <Text style={doctorRequestReviewStyles.infoLabel}>Additional Info:</Text>
+                                    <Text style={doctorRequestReviewStyles.infoValue}>{request.additionalInfo}</Text>
                                 </View>
                             )}
 
-                            <View style={styles.reviewSection}>
-                                <Text style={styles.reviewLabel}>Review Notes (Optional):</Text>
+                            <View style={doctorRequestReviewStyles.reviewSection}>
+                                <Text style={doctorRequestReviewStyles.reviewLabel}>Review Notes (Optional):</Text>
                                 <TextInput
-                                    style={styles.reviewInput}
+                                    style={doctorRequestReviewStyles.reviewInput}
                                     placeholder="Add notes about your review decision..."
                                     placeholderTextColor="rgba(255,255,255,0.7)"
                                     value={reviewNotes[request.id] || ''}
@@ -292,10 +292,10 @@ export default function DoctorRequestReview() {
                                 />
                             </View>
 
-                            <View style={styles.actionButtons}>
+                            <View style={doctorRequestReviewStyles.actionButtons}>
                                 <TouchableOpacity
-                                    style={[styles.actionButton, styles.approveButton, 
-                                           processingId === request.id && styles.actionButtonDisabled]}
+                                    style={[doctorRequestReviewStyles.actionButton, doctorRequestReviewStyles.approveButton, 
+                                           processingId === request.id && doctorRequestReviewStyles.actionButtonDisabled]}
                                     onPress={() => handleReviewRequest(request.id, 'approved')}
                                     disabled={processingId === request.id}
                                 >
@@ -304,14 +304,14 @@ export default function DoctorRequestReview() {
                                     ) : (
                                         <>
                                             <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                                            <Text style={styles.actionButtonText}>Approve</Text>
+                                            <Text style={doctorRequestReviewStyles.actionButtonText}>Approve</Text>
                                         </>
                                     )}
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
-                                    style={[styles.actionButton, styles.rejectButton,
-                                           processingId === request.id && styles.actionButtonDisabled]}
+                                    style={[doctorRequestReviewStyles.actionButton, doctorRequestReviewStyles.rejectButton,
+                                           processingId === request.id && doctorRequestReviewStyles.actionButtonDisabled]}
                                     onPress={() => handleReviewRequest(request.id, 'rejected')}
                                     disabled={processingId === request.id}
                                 >
@@ -320,7 +320,7 @@ export default function DoctorRequestReview() {
                                     ) : (
                                         <>
                                             <Ionicons name="close-circle" size={20} color="#fff" />
-                                            <Text style={styles.actionButtonText}>Reject</Text>
+                                            <Text style={doctorRequestReviewStyles.actionButtonText}>Reject</Text>
                                         </>
                                     )}
                                 </TouchableOpacity>
@@ -333,165 +333,4 @@ export default function DoctorRequestReview() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollContainer: {
-        flexGrow: 1,
-        padding: 20,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#666',
-    },
-    headerContainer: {
-        alignItems: 'center',
-        marginBottom: 30,
-        paddingTop: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
-        textAlign: 'center',
-        marginTop: 10,
-        textShadowColor: 'rgba(0,0,0,0.3)',
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 3,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.9)',
-        textAlign: 'center',
-        marginTop: 5,
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'rgba(255,255,255,0.8)',
-        marginTop: 20,
-        textAlign: 'center',
-    },
-    emptySubtext: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.6)',
-        textAlign: 'center',
-        marginTop: 10,
-    },
-    requestCard: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        padding: 20,
-        borderRadius: 15,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
-    },
-    requestHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 15,
-    },
-    requestTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#fff',
-        flex: 1,
-    },
-    statusBadge: {
-        backgroundColor: '#FFA500',
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    statusText: {
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    requestInfo: {
-        flexDirection: 'row',
-        marginBottom: 8,
-    },
-    infoLabel: {
-        fontSize: 14,
-        color: 'rgba(255,255,255,0.8)',
-        fontWeight: 'bold',
-        width: 120,
-    },
-    infoValue: {
-        fontSize: 14,
-        color: '#fff',
-        flex: 1,
-        flexWrap: 'wrap',
-    },
-    reviewSection: {
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    reviewLabel: {
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    reviewInput: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.3)',
-        borderRadius: 10,
-        padding: 15,
-        color: '#fff',
-        fontSize: 14,
-        height: 80,
-        textAlignVertical: 'top',
-    },
-    actionButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 10,
-    },
-    actionButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 25,
-        minWidth: 120,
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    actionButtonDisabled: {
-        opacity: 0.6,
-    },
-    approveButton: {
-        backgroundColor: '#32CD32',
-    },
-    rejectButton: {
-        backgroundColor: '#FF6347',
-    },
-    actionButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 8,
-    },
-});
+

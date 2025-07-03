@@ -1,0 +1,165 @@
+// assets/styles/componentStyles/doctorRequestReviewStyles.ts
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        padding: 20,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: 30,
+        paddingTop: 20,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+        textAlign: 'center',
+        marginTop: 10,
+        textShadowColor: 'rgba(0,0,0,0.3)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 3,
+    },
+    subtitle: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.9)',
+        textAlign: 'center',
+        marginTop: 5,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+    },
+    emptyText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'rgba(255,255,255,0.8)',
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    emptySubtext: {
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.6)',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    requestCard: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        padding: 20,
+        borderRadius: 15,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    requestHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    requestTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
+        flex: 1,
+    },
+    statusBadge: {
+        backgroundColor: '#FFA500',
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    statusText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 'bold',
+    },
+    requestInfo: {
+        flexDirection: 'row',
+        marginBottom: 8,
+    },
+    infoLabel: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.8)',
+        fontWeight: 'bold',
+        width: 120,
+    },
+    infoValue: {
+        fontSize: 14,
+        color: '#fff',
+        flex: 1,
+        flexWrap: 'wrap',
+    },
+    reviewSection: {
+        marginTop: 20,
+        marginBottom: 20,
+    },
+    reviewLabel: {
+        fontSize: 16,
+        color: '#fff',
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    reviewInput: {
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
+        borderRadius: 10,
+        padding: 15,
+        color: '#fff',
+        fontSize: 14,
+        height: 80,
+        textAlignVertical: 'top',
+    },
+    actionButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 10,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        minWidth: 120,
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    actionButtonDisabled: {
+        opacity: 0.6,
+    },
+    approveButton: {
+        backgroundColor: '#32CD32',
+    },
+    rejectButton: {
+        backgroundColor: '#FF6347',
+    },
+    actionButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+});
