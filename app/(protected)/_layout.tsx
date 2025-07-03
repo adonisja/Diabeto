@@ -2,7 +2,8 @@
 
 import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/firebase/AuthContext';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
+import protectedLayoutStyles from '../../assets/styles/protectedStyles/protectedLayoutStyles';
 
 export default function ProtectedLayout() {
     const { user, loading } = useAuth();
@@ -10,9 +11,9 @@ export default function ProtectedLayout() {
     // Show loading while auth state is being determined
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={protectedLayoutStyles.loadingContainer}>
                 <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={styles.loadingText}>Loading...</Text>
+                <Text style={protectedLayoutStyles.loadingText}>Loading...</Text>
             </View>
         );
     }
@@ -38,21 +39,3 @@ export default function ProtectedLayout() {
     );
 }
 
-const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#666',
-    },
-});
-// If you don't have them, you'd need to create them:
-// const commonAppStyles = StyleSheet.create({
-//     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' },
-//     loadingText: { marginTop: 10, fontSize: 18, color: '#333' },
-// });

@@ -1,7 +1,7 @@
 // app/(protected)/userProfile.tsx
 
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { useAuth } from '../../firebase/AuthContext'; 
 import { db } from "@/firebase/firebaseConfig"; 
@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import AppHeader from '../../components/coreComponents/AppHeader';
 
 import commonAuthStyles from '../../assets/styles/authStyles/commonAuthStyles'; 
+import userProfileStyles from '../../assets/styles/protectedStyles/userProfileStyles'; 
 
 export default function UserProfileScreen() { 
     const { user, userProfile, loading, loadingProfile } = useAuth(); 
@@ -135,12 +136,11 @@ export default function UserProfileScreen() {
             behavior={Platform.OS === "ios" ? "padding" : "height"} 
             style={{ flex: 1 }} 
         >
-        <View style={styles.outerContainer}>
+        <View style={userProfileStyles.outerContainer}>
             <AppHeader 
                 title="Complete Your Profile"
                 subtitle="Set up your account information"
                 gradient={['#4c669f', '#3b5998', '#192f6a']}
-                textColor="#fff"
             />
             
             <LinearGradient
@@ -171,7 +171,7 @@ export default function UserProfileScreen() {
                     />
 
                     <Text style={commonAuthStyles.label}>Select Your Role:</Text>
-                    <View style={styles.roleSelectionContainer}> 
+                    <View style={userProfileStyles.roleSelectionContainer}> 
                         {/* 12. Role Selection: New users can only choose patient/caretaker, admin can assign any role */}
                         {(userProfile?.role === 'admin' ? 
                             ['patient', 'caretaker', 'doctor', 'admin'] : 
@@ -179,10 +179,10 @@ export default function UserProfileScreen() {
                         ).map(r => ( 
                             <TouchableOpacity
                                 key={r} 
-                                style={[styles.roleButton, role === r && styles.roleButtonActive]} 
+                                style={[userProfileStyles.roleButton, role === r && userProfileStyles.roleButtonActive]} 
                                 onPress={() => setRole(r as 'patient' | 'caretaker' | 'doctor' | 'admin')} 
                             >
-                                <Text style={[styles.roleButtonText, role === r && styles.roleButtonTextActive]}>
+                                <Text style={[userProfileStyles.roleButtonText, role === r && userProfileStyles.roleButtonTextActive]}>
                                     {r.charAt(0).toUpperCase() + r.slice(1)} 
                                     {r === 'admin' && ' 🛡️'}
                                 </Text>
@@ -191,7 +191,7 @@ export default function UserProfileScreen() {
                     </View>
                     
                     {/* Role Selection Notice */}
-                    <Text style={styles.securityNotice}>
+                    <Text style={userProfileStyles.securityNotice}>
                         {userProfile?.role === 'admin' ? 
                             '⚠️ Admin Access: You can assign any role including admin.' :
                             'ℹ️ New users can register as Patient or Caretaker. Doctor role requires credential verification by an administrator.'
@@ -209,44 +209,3 @@ export default function UserProfileScreen() {
 }
 
 // 13. Local Styles (ensure these are either here or in your commonAuthStyles)
-const styles = StyleSheet.create({
-    outerContainer: {
-        flex: 1,
-    },
-    roleSelectionContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap', 
-        justifyContent: 'center',
-        marginBottom: 20,
-        width: '100%',
-    },
-    roleButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        margin: 5,
-        borderRadius: 25,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.3)',
-    },
-    roleButtonActive: {
-        backgroundColor: '#fff',
-        borderColor: '#fff',
-    },
-    roleButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    roleButtonTextActive: {
-        color: '#192f6a', 
-    },
-    securityNotice: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 12,
-        textAlign: 'center',
-        marginTop: 10,
-        marginBottom: 10,
-        fontStyle: 'italic',
-    },
-});

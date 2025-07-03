@@ -1,11 +1,12 @@
 // components/coreComponents/InvitePatientForm.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../firebase/AuthContext';
 import { db } from '@/firebase/firebaseConfig';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { logAction } from '@/firebase/LogService';
 import commonAppStyles from '../../assets/styles/protectedStyles/commonAppStyles';
+import invitePatientFormStyles from '../../assets/styles/componentStyles/invitePatientFormStyles';
 
 interface InvitePatientFormProps {
     onInvitationSentSuccess: (patientId: string, relationshipId: string) => void;
@@ -117,8 +118,8 @@ export default function InvitePatientForm({ onInvitationSentSuccess }: InvitePat
     };
 
     return (
-        <View style={styles.formContainer}>
-            <Text style={styles.subtitle}>Enter the email of the patient you wish to connect with.</Text>
+        <View style={invitePatientFormStyles.formContainer}>
+            <Text style={invitePatientFormStyles.subtitle}>Enter the email of the patient you wish to connect with.</Text>
 
             {errorMsg ? <Text style={commonAppStyles.errorText}>{errorMsg}</Text> : null}
 
@@ -145,16 +146,3 @@ export default function InvitePatientForm({ onInvitationSentSuccess }: InvitePat
     );
 }
 
-const styles = StyleSheet.create({
-    formContainer: {
-        width: '100%',
-        alignItems: 'center',
-        paddingHorizontal: 20, // Add padding specific to the form content
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#eee',
-        marginBottom: 30,
-        textAlign: 'center',
-    },
-});

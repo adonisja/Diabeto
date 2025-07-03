@@ -1,0 +1,96 @@
+// assets/styles/protectedStyles/caretakerStyles/caretakerDashboardStyles.ts
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+    outerContainer: {
+        flex: 1,
+    },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    actionsContainer: {
+        width: '100%',
+        marginBottom: 30,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    actionButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 15,
+    },
+    upgradeContainer: {
+        backgroundColor: 'rgba(255,215,0,0.1)',
+        padding: 20,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: 'rgba(255,215,0,0.3)',
+        alignItems: 'center',
+        width: '100%',
+        marginTop: 20,
+    },
+    upgradeTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFD700',
+        marginTop: 10,
+        textAlign: 'center',
+    },
+    upgradeText: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.9)',
+        textAlign: 'center',
+        marginTop: 10,
+        lineHeight: 20,
+    },
+    upgradeButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#32CD32',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        marginTop: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    upgradeButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 8,
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        padding: 20,
+        paddingTop: 50,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+    },
+    closeButton: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        padding: 10,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
+    },
+});
