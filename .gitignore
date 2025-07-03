@@ -136,9 +136,9 @@ $RECYCLE.BIN/
 
 # Public documentation (MUST be tracked)
 !ARCHITECTURE.md
-!BUGS_AND_FIXES.md
 
 # Sensitive documentation (MUST NOT be tracked)
+BUGS_AND_FIXES.md
 PROJECT_STRUCTURE.md
 REFACTORING_SUMMARY.md
 ARCHITECTURE_UPDATE_COMPLETE.md
