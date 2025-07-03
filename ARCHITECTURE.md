@@ -476,13 +476,13 @@ The architecture supports healthcare data requirements:
 ```javascript
 // Doctor-Patient Relationship Requirements
 1. Valid doctor role
-2. Relationship document exists: {doctorId}_{patientId}_doctor-patient
+2. Relationship document exists 
 3. Relationship status: 'accepted'
 4. Patient must have approved the relationship
 
 // Caretaker-Patient Relationship Requirements  
 1. Valid caretaker role
-2. Relationship document exists: {caretakerId}_{patientId}_caretaker-patient
+2. Relationship document exists 
 3. Relationship status: 'accepted'
 4. Patient must have approved the relationship
 ```
