@@ -408,7 +408,7 @@ await logAction(
 ```
 
 4. **Added Firestore Security Rules:**
-```javascript
+```plaintext
 // Collection: invitations (top-level collection)
 match /invitations/{invitationId} {
   // Create: Authenticated caretakers can create invitations
@@ -1207,9 +1207,6 @@ useEffect(() => {
 - Use debug logging to track component state during development
 - Test all redirect scenarios thoroughly with different user roles
 
-**Key Lesson:**
-All redirect logic in layout components should be protected with redirect tracking to prevent infinite loops, not just role-based redirects but also profile completion and other conditional redirects.
-
 ---
 
 ### Bug #9: Infinite Redirect Loop in Protected Layout
@@ -1294,7 +1291,7 @@ Landing screen was showing infinite loading spinner instead of completing authen
 4. **Added comprehensive logging**: Better visibility into state transitions
 
 **Fixed Code:**
-```typescript
+```tsx
 // Enhanced completion detection
 if (!loading && (user === null || (!loadingProfile && user))) {
     setAuthCheckComplete(true);
@@ -1385,9 +1382,9 @@ LOG  Auth check timer expired - completing check
 4. This created an infinite loop where the timer kept firing
 
 **Solution Applied:**
-1. **Removed `authCheckComplete` from dependency array**: Prevents re-running when auth check completes
-2. **Added early return guard**: Prevents starting new timer if auth check is already complete
-3. **Moved early completion logic**: Checks auth state before starting timer
+1. **Removed `authCheckComplete` from dependency array** - prevents re-running when auth check completes
+2. **Added early return guard** - prevents starting new timer if auth check is already complete
+3. **Moved early completion logic** - checks auth state before starting timer
 
 **Fixed Code:**
 ```tsx
@@ -1412,21 +1409,119 @@ useEffect(() => {
 **Key Lesson:**
 Be careful with dependency arrays in `useEffect` - including state that the effect modifies can create infinite loops.
 
-**Prevention Strategy:**
-- Carefully review `useEffect` dependency arrays
-- Avoid including state that the effect modifies
-- Use guards to prevent unnecessary effect execution
-- Test effect cleanup and re-execution scenarios
-
 ---
 
-### Bug #5: "Text strings must be rendered within a <Text> component" Error
-**Date Encountered**: 2025-07-02  
-**Date Fixed**: 2025-07-02  
+### Issue: Firebase False Flag Handling
+**Date Encountered**: 2025-07-03  
+**Date Fixed**: 2025-07-03  
 **Severity**: 🟡 Major  
 **Status**: ✅ Fixed
 
-**Problem Description:**
+**Problem Investigation:**
+"Does the current setup account for if Firebase returns a false flag (that the user is definitely not in the database or the user is unauthenticated)?"
+
+**Analysis:**
+The current implementation **correctly** handles Firebase false flags:
+
+1. **Firebase State Responses:**
+   - `user = undefined` + `loading = true` → Still checking
+   - `user = null` + `loading = false` → **FALSE FLAG** (definitively not authenticated)
+   - `user = FirebaseUser` + `loading = false` → Authenticated
+
+2. **Landing Screen Logic:**
+   ```tsx
+   // Early completion logic handles both true AND false results
+   if (!loading && (user === null || (!loadingProfile && user))) {
+       setAuthCheckComplete(true); // ✅ Stops timer for definitive results
+   }
+   
+   // Button text correctly differentiates
+   if (!user) return "Get Started"; // ✅ When Firebase says "no user"
+   ```
+
+3. **Timer Fallback Protection:**
+   - Prevents infinite waiting if Firebase hangs
+   - 5-second maximum wait time
+   - Early completion when Firebase gives definitive answer
+
+**Key Insight:**
+The system correctly distinguishes between:
+- **Checking** (`user = undefined`, `loading = true`)
+- **Not Authenticated** (`user = null`, `loading = false`) ← **False Flag**
+- **Authenticated** (`user = FirebaseUser`, `loading = false`)
+
+**Improvement Made:**
+Enhanced the early completion logic to be more explicit about handling unauthenticated users:
+```tsx
+if (!loading && (user === null || (!loadingProfile && user))) {
+    // Handles both "definitely no user" and "user with loaded profile"
+}
+```
+
+This ensures new users with empty databases get immediate "Get Started" button instead of waiting for timer.
+
+---
+
+### Issue: Infinite Loop in Landing Screen Timer
+**Date Encountered**: 2025-07-03  
+**Date Fixed**: 2025-07-03  
+**Severity**: 🟡 Major  
+**Status**: ✅ Fixed
+
+**Problem:**
+The authentication timer was getting stuck in an infinite loop, continuously logging "Auth check timer expired" even after the auth check was complete.
+
+**Log Evidence:**
+```
+LOG  Auth check completed early: {"loading": false, "loadingProfile": true, "user": false}
+LOG  Auth check timer expired - completing check
+LOG  Auth check timer expired - completing check
+[...repeating infinitely...]
+```
+
+**Root Cause:**
+1. The `useEffect` dependency array included `authCheckComplete`
+2. When `setAuthCheckComplete(true)` was called, it triggered the effect to re-run
+3. The timer continued running even after auth check was complete
+4. This created an infinite loop where the timer kept firing
+
+**Solution:**
+1. **Removed `authCheckComplete` from dependency array** - prevents re-running when auth check completes
+2. **Added early return guard** - prevents starting new timer if auth check is already complete
+3. **Moved early completion logic** - checks auth state before starting timer
+
+**Fixed Code:**
+```tsx
+useEffect(() => {
+    // Guard: Don't start timer if already complete
+    if (authCheckComplete) {
+        return;
+    }
+    
+    // Check for immediate completion before starting timer
+    if (!loading && (user === null || (!loadingProfile && user))) {
+        setAuthCheckComplete(true);
+        return; // Don't start timer
+    }
+    
+    // Only start timer if auth state still unknown
+    const timer = setInterval(() => { /* timer logic */ });
+    return () => clearInterval(timer);
+}, [loading, loadingProfile, user]); // Removed authCheckComplete
+```
+
+**Key Lesson:**
+Be careful with dependency arrays in `useEffect` - including state that the effect modifies can create infinite loops.
+
+---
+
+### Issue: "Text strings must be rendered within a <Text> component" Error
+**Date Encountered**: 2025-07-03  
+**Date Fixed**: 2025-07-03  
+**Severity**: 🟡 Major  
+**Status**: ✅ Fixed
+
+**Problem:**
 React Native threw the error "Text strings must be rendered within a <Text> component" even though all text appeared to be properly wrapped in `<Text>` components.
 
 **Error Evidence:**
@@ -1435,24 +1530,51 @@ ERROR  Error: Text strings must be rendered within a <Text> component.
     in AuthLandingScreen
 ```
 
-**Root Cause Analysis:**
-1. **Boolean rendering in JSX**: Using `&&` operator with booleans can cause React Native to try rendering `false`
-2. **Implicit type conversion**: Functions might return non-string values in edge cases
-3. **Conditional rendering patterns**: React Native is more strict than React web about rendering falsy values
-4. **Single-line JSX complexity**: React Native's JSX parser can struggle with complex single-line expressions
+**Root Causes:**
+1. **Boolean rendering in JSX** - Using `&&` operator with booleans can cause React Native to try rendering `false`
+2. **Implicit type conversion** - Functions might return non-string values in edge cases
+3. **Conditional rendering patterns** - React Native is more strict than React web about rendering falsy values
 
-**Solution Applied:**
-1. **Explicit string conversion**: Wrapped function calls in `String()` to ensure string output
-2. **Ternary operator instead of &&**: Changed conditional rendering to explicit ternary
-3. **Explicit null returns**: Ensured all conditional renders return `null` instead of `false`
-4. **Multi-line JSX format**: Broke complex components into multiple lines
+**Solutions Applied:**
+1. **Explicit string conversion** - Wrapped function calls in `String()` to ensure string output:
+   ```tsx
+   <Text>{String(getStatusMessage())}</Text>
+   <Text>{String(getButtonText())}</Text>
+   ```
 
-**Fixed Code:**
+2. **Ternary operator instead of &&** - Changed conditional rendering to explicit ternary:
+   ```tsx
+   // Before: {condition && <Component />}
+   // After: {condition ? <Component /> : null}
+   ```
+
+3. **Explicit null returns** - Ensured all conditional renders return `null` instead of `false`:
+   ```tsx
+   {__DEV__ ? <DebugView /> : null}
+   {shouldShow ? <ActivityIndicator /> : null}
+   ```
+
+**Key Lesson:**
+React Native is stricter about rendering non-components compared to React web. Always use ternary operators with explicit `null` returns and ensure text content is always strings.
+
+---
+
+### Issue: Text Component Attributes Causing Render Error
+**Date Encountered**: 2025-07-03  
+**Date Fixed**: 2025-07-03  
+**Severity**: 🟡 Major  
+**Status**: ✅ Fixed
+
+**Problem:**
+The error "Text strings must be rendered within a <Text> component" was occurring even when text was properly wrapped in `<Text>` components.
+
+**Original Code (Broken):**
 ```tsx
-// Before (Broken):
 {errorMsg ? <Text style={signinStyles.errorText}>{errorMsg}</Text> : null}
+```
 
-// After (Working):
+**Fixed Code (Working):**
+```tsx
 {errorMsg ? (
     <Text
         style={signinStyles.errorText}
@@ -1464,52 +1586,96 @@ ERROR  Error: Text strings must be rendered within a <Text> component.
 ) : null}
 ```
 
-**Key Lesson:**
-React Native is stricter about rendering non-components compared to React web. Always use ternary operators with explicit `null` returns and ensure text content is always strings.
+**Root Cause Analysis:**
+The issue was **NOT** about the text rendering itself, but about **React Native's JSX parsing in single-line format**. 
+
+**Why This Happened:**
+1. **Single-line JSX complexity** - React Native's JSX parser can struggle with complex single-line expressions
+2. **Conditional rendering edge case** - The combination of ternary operator + component + props in one line triggered parsing issues
+3. **Component instantiation timing** - Single-line format may cause timing issues in component creation during state transitions
+
+**Why The Fix Worked:**
+1. **Multi-line format** - Breaking the JSX into multiple lines helps React Native's parser process the component properly
+2. **Explicit component structure** - Clear opening/closing tags make component boundaries obvious
+3. **Accessibility improvements** - Added `testID` and `accessibilityRole` as bonus improvements
+4. **Better readability** - Multi-line format is easier to debug and maintain
+
+**Key Insights:**
+- **Not always about logic** - Sometimes React Native errors are about JSX formatting/parsing
+- **Single-line vs multi-line matters** - Complex components should use multi-line format
+- **Conditional rendering best practices** - Use explicit parentheses and line breaks for conditional JSX
 
 **Prevention Strategy:**
-- Use ternary operators instead of `&&` for conditional rendering
-- Always return `null` explicitly instead of relying on falsy values
-- Use multi-line format for complex JSX components
-- Test on React Native specifically, not just web
+Always use multi-line format for conditional rendering of components with multiple props:
+```tsx
+// Avoid:
+{condition ? <Component prop1="value" prop2="value">{content}</Component> : null}
+
+// Prefer:
+{condition ? (
+    <Component 
+        prop1="value" 
+        prop2="value"
+    >
+        {content}
+    </Component>
+) : null}
+```
+
+**Locations Fixed:**
+- `app/(auth)/Signin.tsx` - Error message rendering
 
 ---
 
-### Bug #4: Firebase Firestore Security Rules - Medical Records Compliance
+### Issue: Firebase Firestore Security Rules - Medical Records Compliance
 **Date Encountered**: 2025-07-02  
 **Date Fixed**: 2025-07-02  
 **Severity**: 🔴 Critical  
 **Status**: ✅ Fixed
 
-**Problem Description:**
-Multiple permission errors when creating user profiles and logging actions due to misconfigured Firestore security rules.
-
-**Error Messages:**
+**Problem:**
+Multiple permission errors when creating user profiles and logging actions:
 ```
 ERROR  Error creating default user profile: [FirebaseError: Missing or insufficient permissions.]
 ERROR  LogService: Error logging action: [FirebaseError: Missing or insufficient permissions.]
 ```
 
 **Root Cause Analysis:**
-1. **LogService Field Mismatch**: Rules expected `serverTimestamp` field, LogService sent `timestamp`
-2. **Missing Field Validation**: Rules missing validation for `username` field that LogService includes
-3. **User Profile Creation Too Restrictive**: Rules required fields not provided by AuthContext
-4. **Role Validation Issues**: Rules didn't allow `'unverified'` role that AuthContext creates
 
-**Solution Applied:**
-1. **Enhanced Security Rules Structure**: Added comprehensive helper functions and validation
-2. **Field Validation Fixed**: Updated rules to match actual LogService field names
-3. **Role Validation Updated**: Added support for `'unverified'` role in initial user creation
-4. **Medical-Grade Compliance**: Implemented role-based access control and relationship verification
+1. **LogService Field Mismatch:**
+   - Rules expected `serverTimestamp` field, LogService sent `timestamp`
+   - Rules missing validation for `username` field that LogService includes
 
-**Key Security Features Implemented:**
+2. **User Profile Creation Too Restrictive:**
+   - Rules required `firstName`/`lastName` fields not provided by AuthContext
+   - Rules didn't allow `'unverified'` role that AuthContext creates
+   - Rules expected custom claims that may not be immediately available
+
+3. **Medical Records Security Requirements:**
+   - Need role-based access control for patient/caretaker/doctor relationships
+   - Must protect medical data subcollections with relationship verification
+   - Require immutable audit trails for compliance
+
+**Solution Implemented:**
+
+**Enhanced Security Rules Structure:**
+```javascript
+// Medical-grade security layers:
+1. Helper Functions: isAuthenticated(), isOwner(), isAdmin(), isDoctorLinkedToPatient()
+2. User Profiles: artifacts/{appId}/users/{userId} with role-based access
+3. Medical Data: Subcollections with relationship-based permissions
+4. Relationships: doctor-patient, caretaker-patient with status control
+5. Audit Logs: Immutable logging with admin-only access
+```
+
+**Key Security Features:**
 - **Data Ownership**: Users can only access their own medical records
 - **Relationship-Based Access**: Doctors/caretakers can read patient data only if relationship is 'accepted'
 - **Role Validation**: Multiple fallbacks for role checking (custom claims + document)
 - **Audit Trail**: Immutable logs with comprehensive field validation
 - **Principle of Least Privilege**: Default deny all, explicit allow rules only
 
-**Fixed Code:**
+**Field Validation Fixed:**
 ```javascript
 // LogService validation now matches actual fields:
 match /appLogs/{logId} {
@@ -1523,349 +1689,37 @@ match /appLogs/{logId} {
     && (request.resource.data.outcome == null || request.resource.data.outcome in ['success', 'failure'])
     && (request.resource.data.details == null || request.resource.data.details is map);
 }
+
+// User profile creation now allows initial 'unverified' state:
+allow create: if isAuthenticated()
+  && request.auth.uid == userId
+  && request.resource.data.uid == userId
+  && request.resource.data.email is string
+  && request.resource.data.role in ['patient', 'caretaker', 'doctor', 'admin', 'unverified'] // Added 'unverified'
+  && (request.resource.data.profileCompleted == false || request.resource.data.profileCompleted == true);
 ```
 
-**Prevention Strategy:**
-- Always test security rules with actual application data
-- Keep rules and application code in sync
-- Use comprehensive field validation
-- Implement medical-grade security from the start
-- Test all user roles and permissions thoroughly
+**Medical Data Protection:**
+- **Patient Data**: Only accessible by owner, approved caretakers, linked doctors, or admins
+- **Relationships**: Structured ID format for predictable queries and security
+- **Status Control**: Pending → Accepted/Rejected workflow for relationship approval
+- **No Deletion**: Medical records and relationships cannot be deleted (audit compliance)
 
----
-
-### Bug #3: useAuthNavigation Hook - LogService Parameter Order Mismatch
-**Date Encountered**: 2025-07-02  
-**Date Fixed**: 2025-07-02  
-**Severity**: 🟡 Major  
-**Status**: ✅ Fixed
-
-**Problem Description:**
-Multiple TypeScript errors in `useAuthNavigation.ts` hook due to incorrect parameter order when calling `logAction` function.
-
-**Error Messages:**
-```
-Argument of type '"UNAUTHENTICATED_ACCESS_ATTEMPT"' is not assignable to parameter of type 'UserRole'.
+**Deployment Required:**
+```bash
+firebase deploy --only firestore:rules
 ```
 
-**Root Cause Analysis:**
-The `logAction` function signature was updated to include a `username` parameter, but the hook was still using the old parameter order:
+**Security Validation Checklist:**
+- ✅ User profiles: Owner-only access with role validation
+- ✅ Medical data: Relationship-based access control
+- ✅ Audit logs: Admin-only read, immutable writes
+- ✅ Relationships: Status-based permissions
+- ✅ Default deny: All unmatched paths denied
+- ✅ Field validation: Comprehensive data type checking
 
-**Old LogService signature:**
-```typescript
-logAction(uid, email, role, action, outcome, details)
-```
-
-**New LogService signature:**
-```typescript
-logAction(uid, username, email, role, action, outcome, details)
-```
-
-**Issues Fixed:**
-
-1. **Parameter Order Mismatch:**
-   ```typescript
-   // Before (Wrong):
-   logAction('anonymous-uid', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
-   //        uid           email         role       action                    outcome details
-   
-   // After (Correct):
-   logAction('anonymous-uid', 'anonymous-user', 'anonymous-email', 'unverified', 'UNAUTHENTICATED_ACCESS_ATTEMPT', null, { path: currentFullPath });
-   //        uid           username       email         role       action                    outcome details
-   ```
-
-2. **Missing Username Parameter:**
-   ```typescript
-   // Added username extraction for authenticated users:
-   const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
-   
-   // All logAction calls now include username parameter:
-   logAction(user.uid, userUsernameForLog, userEmailForLog, role, action, outcome, details)
-   ```
-
-3. **Anonymous User Logging:**
-   ```typescript
-   // Proper handling for unauthenticated users:
-   logAction(
-     'anonymous-uid', 
-     'anonymous-user',     // ← Added username
-     'anonymous-email', 
-     'unverified', 
-     'UNAUTHENTICATED_ACCESS_ATTEMPT', 
-     null, 
-     { path: currentFullPath }
-   );
-   ```
-
-**All LogAction Calls Fixed:**
-- ✅ Unauthenticated access attempts
-- ✅ Unverified user logout
-- ✅ Profile completion redirects  
-- ✅ Login redirects to protected areas
-
-**Security Benefit:**
-The logging now properly captures both email and username for better audit trail identification, supporting medical records compliance requirements.
-
-**Key Lesson:**
-When updating function signatures, ensure all calling code is updated to match the new parameter order and required fields.
-
----
-
-### Bug #2: Username Field Missing from User Profile Structure
-**Date Encountered**: 2025-07-02  
-**Date Fixed**: 2025-07-02  
-**Severity**: 🟡 Major  
-**Status**: ✅ Fixed
-
-**Problem:**
-The `useAuthNavigation` hook was generating usernames from email addresses instead of using actual usernames collected during signup:
-```typescript
-// Problematic approach:
-const userUsernameForLog = user?.email?.split('@')[0] ?? 'anonymous-user';
-```
-
-**Root Cause Analysis:**
-1. **Signup form collects username** but doesn't save it to user profile document
-2. **UserProfile interface** didn't include username field
-3. **LogService expects username** but it's not available in userProfile
-4. **Workaround used email** to generate fake username (not ideal for medical records)
-
-**Solution Implemented:**
-
-1. **Added username to UserProfile interface:**
-   ```typescript
-   export interface UserProfile {
-     uid: string;
-     email: string;
-     username?: string; // ← Added username field
-     role: 'patient' | 'caretaker' | 'doctor' | 'admin' | 'unverified';
-     // ...other fields
-   }
-   ```
-
-2. **Updated useAuthNavigation to prefer real username:**
-   ```typescript
-   // Improved approach with fallback:
-   const userUsernameForLog = userProfile?.username ?? user?.email?.split('@')[0] ?? 'anonymous-user';
-   ```
-
-**Outstanding Work Required:**
-
-To complete the username implementation, you need to:
-
-1. **Update Signup.tsx** to save username to user profile:
-   ```typescript
-   // After user creation, update/create profile with username
-   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
-   await setDoc(userDocRef, {
-     uid: user.uid,
-     email: user.email,
-     username: username.trim(), // ← Save the username
-     role: 'unverified',
-     profileCompleted: false,
-     createdAt: serverTimestamp(),
-     updatedAt: serverTimestamp()
-   });
-   ```
-
-2. **Update AuthContext default profile creation** to include username field
-
-3. **Update userProfile.tsx** to allow username editing/completion
-
-4. **Update Firestore rules** to validate username field if required
-
-**Medical Records Compliance:**
-Having proper usernames (not derived from email) improves audit trail quality and user identification in medical record systems. This supports better compliance with healthcare data regulations.
-
-**Current State:**
-- ✅ Interface updated to include username field
-- ✅ Hook updated to prefer real username over email-derived username
-- ⚠️ Signup form still needs to save username to profile
-- ⚠️ AuthContext still needs to handle username in default profiles
-
----
-
-### Bug #1: Signup Form Missing User Profile Creation
-**Date Encountered**: 2025-07-02  
-**Date Fixed**: 2025-07-02  
-**Severity**: 🔴 Critical  
-**Status**: ✅ Fixed
-
-**Problem Description:**
-The Signup form was collecting user information (username, email) but only creating the Firebase Auth account, not saving the user profile to Firestore. This caused:
-1. Username was lost after signup
-2. AuthContext had to create incomplete default profiles
-3. LogService couldn't access real usernames
-
-**What Was Missing from Signup.tsx:**
-
-1. **Firestore imports** - `doc`, `setDoc`, `serverTimestamp`
-2. **Database reference** - Import `db` from firebaseConfig
-3. **Profile document creation** - `setDoc` call to save user profile
-4. **Environment variable** - `FIREBASE_APP_ID` for proper document path
-5. **LogService parameter fixes** - Wrong parameter order
-
-**Solution Implemented:**
-
-1. **Added missing imports:**
-   ```typescript
-   import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-   import { auth, db } from "@/firebase/firebaseConfig";
-   ```
-
-2. **Added profile creation after user account creation:**
-   ```typescript
-   // Create user profile document in Firestore
-   const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', user.uid);
-   await setDoc(userDocRef, {
-       uid: user.uid,
-       email: user.email || '',
-       username: username.trim(), // ← Now saves the username!
-       role: 'unverified',
-       profileCompleted: false,
-       createdAt: serverTimestamp(),
-       updatedAt: serverTimestamp()
-   });
-   ```
-
-3. **Fixed LogService parameter order:**
-   ```typescript
-   // Correct order: uid, username, email, role, action, outcome, details
-   await logAction(
-       user.uid,
-       username.trim(),
-       user.email ?? 'no-email-provided',
-       'unverified',
-       'EMAIL_SIGNUP_SUCCESS',
-       'success',
-       { username: username.trim() }
-   );
-   ```
-
-**Benefits:**
-- ✅ **Username preservation** - Username from signup is now saved to profile
-- ✅ **Complete profile creation** - No need for AuthContext to create incomplete defaults
-- ✅ **Better audit trail** - LogService now has access to real usernames
-- ✅ **Firestore rules compliance** - Profile documents match expected structure
-- ✅ **Medical records integrity** - Proper user identification from registration
-
-**Signup Flow Now:**
-1. Create Firebase Auth account ✅
-2. Create Firestore user profile with username ✅
-3. Send email verification ✅
-4. Log successful signup with real username ✅
-5. Redirect to signin ✅
-
-This completes the missing piece of the user registration process and ensures usernames are properly preserved throughout the application lifecycle.
-
----
-
-## Device ID Logging Enhancement
-
-### Device Information Capture
-**Date Added**: 2025-07-02  
-**Severity**: 🟡 Major  
-**Status**: ✅ Fixed
-
-#### Overview
-Enhanced audit logging by capturing device information for medical-grade compliance and security monitoring.
-
-#### Changes Made:
-1. **New Utility Module** (`utils/deviceInfo.ts`):
-   - Centralized device information collection
-   - Uses `expo-device` library for cross-platform device identification
-   - Provides consistent device ID format across the app
-   - Fallback mechanism for cases where device info is unavailable
-
-2. **Device ID Integration**:
-   - **Signin.tsx**: Added device ID capture and logging
-   - **Signup.tsx**: Added device ID capture and logging  
-   - **useAuthNavigation.ts**: Added device ID to all navigation-related logs
-
-3. **LogService Enhancement**:
-   - All `logAction` calls now include device information
-   - Device ID included in the `details` object for audit trails
-   - Timestamps added for better chronological tracking
-
-#### Device Information Captured:
-- **Device Type**: Phone, tablet, desktop, etc.
-- **OS Name**: iOS, Android, Web, etc.
-- **OS Version**: Operating system version
-- **Model Name**: Device model (when available)
-- **Brand**: Device manufacturer
-- **Generated Device ID**: Composite identifier for logging
-
-#### Security Considerations:
-- Device IDs are generated, not actual MAC addresses (for privacy)
-- Information is limited to what's needed for audit compliance
-- No personally identifiable hardware information is stored
-- Falls back gracefully if device info is unavailable
-
-#### Usage Example:
-```typescript
-import { getDeviceInfo, getSimpleDeviceId } from '../utils/deviceInfo';
-
-// Get comprehensive device info
-const deviceInfo = await getDeviceInfo();
-
-// Get simple device ID for logging
-const deviceId = await getSimpleDeviceId();
-
-// Use in logging
-await logAction(uid, username, email, role, action, outcome, {
-  deviceId,
-  timestamp: new Date().toISOString(),
-  // other details...
-});
-```
-
-#### Security Features:
-- Case-insensitive username matching prevents duplicate accounts
-- Username uniqueness enforced during signup
-- All usernames stored in lowercase for consistency
-- Comprehensive audit logging includes both username and email
-- Device ID logging maintained for enhanced security tracking
-
-#### User Experience Improvements:
-- **Flexible Login**: Users can sign in with either username or email
-- **Clear Validation**: Real-time feedback on username availability during signup
-- **Consistent Interface**: Single input field handles both authentication methods
-- **Better Error Messages**: Context-aware error messages for different input types
-
-#### Database Schema:
-- User profiles include both `email` and `username` fields
-- Usernames stored in lowercase for consistent querying
-- Firestore queries optimized for username lookups
-- Maintains backward compatibility with email-only authentication
-
-This enhancement significantly improves user experience while maintaining security and adding comprehensive audit capabilities for medical-grade compliance.
-
----
-
-#### iOS-Specific Form Enhancements
-**Date Added**: 2025-07-02  
-**Severity**: 🟢 Minor  
-**Status**: ✅ Fixed
-
-Added iOS-specific TextInput attributes for better password manager integration and user experience:
-
-**Signup Form (`Signup.tsx`)**:
-- `textContentType="username"` + `autoComplete="username"` for username field
-- `textContentType="emailAddress"` + `autoComplete="email"` for email field  
-- `textContentType="newPassword"` + `autoComplete="new-password"` for both password fields
-
-**Signin Form (`Signin.tsx`)**:
-- `textContentType="username"` + `autoComplete="username"` for username/email field
-- `textContentType="password"` + `autoComplete="current-password"` for password field
-
-**Benefits**:
-- **iOS Keychain Integration**: Seamless password manager suggestions
-- **AutoFill Support**: iOS AutoFill will properly categorize and suggest credentials
-- **Accessibility**: Better screen reader support and field identification
-- **Security**: Proper password field handling prevents accidental exposure
-- **UX**: Smoother form completion with appropriate keyboard and suggestions
-
-These attributes ensure optimal integration with iOS password management and accessibility features while maintaining cross-platform compatibility.
+**Compliance Notes:**
+This ruleset supports HIPAA-style requirements for medical record systems with proper access controls, audit trails, and data segregation.
 
 ---
 
