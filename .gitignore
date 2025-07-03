@@ -1,0 +1,168 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds
+android/build/
+android/app/build/
+ios/build/
+ios/Pods/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcworkspace/xcuserdata/
+
+# Generated files
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro bundler
+.metro-health-check*
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log*
+
+# macOS system files
+.DS_Store
+*.pem
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local  
+.env.production.local
+.env*.local
+
+# Firebase
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+firebase-tools.log
+
+# Firebase Configuration (SENSITIVE - contains API keys)
+firebase/firebaseConfig.ts
+firebaseConfig.ts
+
+# Firestore Rules (SENSITIVE - contains security model)
+firestore.rules
+
+# TypeScript
+*.tsbuildinfo
+*.d.ts.map
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+junit.xml
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.example
+
+# Temporary folders
+tmp/
+temp/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Backup files
+*.backup
+*.bak
+
+# Package manager lock files (optional - team decision)
+# Uncomment if your team prefers not to commit lock files
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# @end expo-cli
+
+# ===============================================
+# 📚 DOCUMENTATION FILES
+# ===============================================
+# Include public documentation, exclude sensitive details
+
+# Public documentation (MUST be tracked)
+!ARCHITECTURE.md
+!BUGS_AND_FIXES.md
+
+# Sensitive documentation (MUST NOT be tracked)
+PROJECT_STRUCTURE.md
+REFACTORING_SUMMARY.md
+ARCHITECTURE_UPDATE_COMPLETE.md
+*_COMPLETE.md
+
+# Sensitive configuration and setup files
+temp_admin_setup.js
+*admin_setup*
+debug.keystore
+*.keystore
+
+# Firebase Configuration (SENSITIVE - contains API keys)
+firebase/firebaseConfig.ts
+firebaseConfig.ts
+
+# Firestore Rules (SENSITIVE - contains security model)
+firestore.rules
+
+# These files contain detailed internal information:
+# - PROJECT_STRUCTURE.md: Contains sensitive internal details
+# - REFACTORING_SUMMARY.md: Personal learning tool and internal notes
+# - ARCHITECTURE_UPDATE_COMPLETE.md: Internal completion status
+# - Any *_COMPLETE.md files: Internal status files
+
+# Note: Only high-level architecture and bug documentation
+# should be public. Detailed internal structure and personal
+# learning notes should remain private.
