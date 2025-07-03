@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { auth } from "@/firebase/firebaseConfig"; // Import auth for sign out
-import { useAuth } from '../../firebase/AuthContext'; // Import useAuth to get user info
-import { logAction } from '../../firebase/LogService'; // Import logAction for logging logout
+import { auth } from "@/firebase/firebaseConfig";
+import { useAuth } from '../../firebase/AuthContext';
+import { logAction } from '../../firebase/LogService';
 import AppHeader from '../../components/coreComponents/AppHeader';
+import homeStyles from '../../assets/styles/protectedStyles/homeStyles';
 
 export default function HomeScreen() {
     const { user, userProfile } = useAuth(); // Get user and userProfile from context
@@ -45,7 +46,7 @@ export default function HomeScreen() {
     }, [user?.uid]);
 
     return (
-        <View style={styles.container}>
+        <View style={homeStyles.container}>
             <AppHeader 
                 title="Diabeto Medical Platform"
                 subtitle="Redirecting to your dashboard..."
@@ -53,57 +54,17 @@ export default function HomeScreen() {
                 textColor="#fff"
             />
             
-            <Text style={styles.welcomeText}>Welcome Home!</Text>
+            <Text style={homeStyles.welcomeText}>Welcome Home!</Text>
 
             {user && (
-                <View style={styles.userInfoContainer}>
-                    <Text style={styles.userInfoText}>You are logged in as:</Text>
-                    <Text style={styles.userInfoTextBold}>Email: {user.email || 'N/A'}</Text>
-                    {userProfile?.name && <Text style={styles.userInfoTextBold}>Name: {userProfile.name}</Text>}
-                    {userProfile?.role && <Text style={styles.userInfoTextBold}>Role: {userProfile.role}</Text>}
+                <View style={homeStyles.userInfoContainer}>
+                    <Text style={homeStyles.userInfoText}>You are logged in as:</Text>
+                    <Text style={homeStyles.userInfoTextBold}>Email: {user.email || 'N/A'}</Text>
+                    {userProfile?.name && <Text style={homeStyles.userInfoTextBold}>Name: {userProfile.name}</Text>}
+                    {userProfile?.role && <Text style={homeStyles.userInfoTextBold}>Role: {userProfile.role}</Text>}
                 </View>
             )}
         </View>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#e0f7fa', // Light blue background
-        padding: 20,
-    },
-    welcomeText: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#00796b', // Dark teal color
-        marginBottom: 30,
-        textAlign: 'center',
-    },
-    userInfoContainer: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-        marginBottom: 30,
-        alignItems: 'flex-start',
-        width: '80%',
-    },
-    userInfoText: {
-        fontSize: 16,
-        color: '#555',
-        marginBottom: 5,
-    },
-    userInfoTextBold: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
-    },
-});
