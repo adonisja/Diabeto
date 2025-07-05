@@ -9,6 +9,8 @@ import signinStyles from '../../assets/styles/authStyles/signinStyle';
 import { LinearGradient } from "expo-linear-gradient";
 import { logAction } from '../../firebase/LogService';
 import { getSimpleDeviceId } from '../../utils/deviceInfo';
+import GoogleSignInButton, { GoogleSignInUnavailable } from '../../components/coreComponents/GoogleSignInButton';
+import { isGoogleAuthConfigured } from '../../firebase/googleAuth';
 
 const { width, height } = Dimensions.get("window");
 
@@ -268,6 +270,26 @@ export default function Signup() {
                             {isRegistering ? 'Registering...' : 'Sign Up'}
                         </Text>
                     </TouchableOpacity>
+
+                    {/* Google Sign-In Option */}
+                    <View style={{ marginVertical: 8 }}>
+                        <Text style={signinStyles.orText}>or</Text>
+                    </View>
+
+                    {isGoogleAuthConfigured() ? (
+                        <GoogleSignInButton
+                            onSignInSuccess={() => {
+                                console.log('Google Sign-Up successful');
+                                // Navigation handled by AuthContext
+                            }}
+                            onSignInError={(error) => {
+                                setSignupErrorMsg(error);
+                            }}
+                            disabled={isRegistering}
+                        />
+                    ) : (
+                        <GoogleSignInUnavailable />
+                    )}
 
                     <TouchableOpacity onPress={() => router.push('/(auth)/Signin')}>
                         <Text style={signinStyles.linkText}>

@@ -118,8 +118,16 @@ const signinStyles = StyleSheet.create({
         color: '#fff', // White for visibility on dark gradient
         marginTop: 15, // Space from button above
         fontSize: 16,
-        justifyContent: 'center'
+        justifyContent: 'center',
         // textDecorationLine: 'underline', // Optional: Add underline for links
+    },
+    orText: {
+        color: '#fff',
+        fontSize: 16,
+        textAlign: 'center',
+        marginVertical: 8,
+        fontStyle: 'italic',
+        opacity: 0.8,
     }
 });
 

@@ -10,6 +10,8 @@ import { logAction } from '../../firebase/LogService';
 import { useAuth } from '../../firebase/AuthContext';
 import { getSimpleDeviceId, getDeviceInfo } from '../../utils/deviceInfo';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import GoogleSignInButton, { GoogleSignInUnavailable } from '../../components/coreComponents/GoogleSignInButton';
+import { isGoogleAuthConfigured } from '../../firebase/googleAuth';
 
 export default function Signin() {
     const [emailOrUsername, setEmailOrUsername] = useState(``);
@@ -246,6 +248,26 @@ export default function Signin() {
                             {isSigningIn ? 'Signing In...' : 'Sign In'}
                         </Text>
                     </TouchableOpacity>
+
+                    {/* Google Sign-In Option */}
+                    <View style={{ marginVertical: 8 }}>
+                        <Text style={signinStyles.orText}>or</Text>
+                    </View>
+
+                    {isGoogleAuthConfigured() ? (
+                        <GoogleSignInButton
+                            onSignInSuccess={() => {
+                                console.log('Google Sign-In successful');
+                                // Navigation handled by AuthContext
+                            }}
+                            onSignInError={(error) => {
+                                setErrorMsg(error);
+                            }}
+                            disabled={isSigningIn}
+                        />
+                    ) : (
+                        <GoogleSignInUnavailable />
+                    )}
 
                     <TouchableOpacity onPress={() => router.push('/(auth)/Signup')}>
                         <Text style={signinStyles.linkText}>Don't have an account? Sign Up</Text> 

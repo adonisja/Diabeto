@@ -1,4 +1,4 @@
-# Diabeto App - Current Architecture (Updated 2025-07-03)
+# Diabeto App - Current Architecture (Updated 2025-07-05)
 
 ## 🏗️ Overview
 Diabeto is a medical records management application built with React Native/Expo, featuring comprehensive authentication, role-based access control, and medical-grade security compliance. The app supports multiple user types (patients, doctors, caretakers, admins) with sophisticated relationship-based data access.
@@ -21,7 +21,7 @@ Diabeto is a medical records management application built with React Native/Expo
 - Bug fixes and troubleshooting (→ BUGS_AND_FIXES.md)
 - Database schema details (→ DATABASE_SCHEMA.md)
 
-**Latest Update**: Implemented Enhanced Patient Reminder System with comprehensive meal, glucose, and insulin reminders, including custom meal support, local notifications, and Firestore integration with proper security rules.
+**Latest Update**: Implemented Google Sign-In authentication system with OAuth 2.0 integration, providing seamless single sign-on experience and reducing user acquisition friction while maintaining medical-grade security.
 
 ## 🎯 Core Architecture Principles
 
@@ -112,9 +112,11 @@ diabeto/
 ├── 🔐 Authentication Section
 │   ├── app/(auth)/_layout.tsx       # Auth navigation
 │   ├── app/(auth)/index.tsx         # Auth landing
-│   ├── app/(auth)/Signin.tsx        # Username/email signin
-│   ├── app/(auth)/Signup.tsx        # Registration + profile creation
-│   └── app/(auth)/Forgot-Password.tsx # Password reset
+│   ├── app/(auth)/Signin.tsx        # Username/email + Google signin
+│   ├── app/(auth)/Signup.tsx        # Registration + Google signup + profile creation
+│   ├── app/(auth)/Forgot-Password.tsx # Password reset
+│   ├── firebase/googleAuth.ts       # 🆕 Google OAuth integration
+│   └── components/coreComponents/GoogleSignInButton.tsx # 🆕 Google Sign-In UI
 │
 ├── 🛡️ Protected Section
 │   ├── app/(protected)/_layout.tsx  # Simplified auth guard
@@ -583,148 +585,7 @@ Implemented comprehensive glucose tracking with vibrant UI/UX enhancements, scre
 - `assets/styles/protectedStyles/patientStyles/glucoseMonitoringScreenStyles.ts` (enhanced screen styles)
 
 ### Insulin Monitoring System Implementation (Enhanced July 2025)
-Implemented comprehensive insulin administration tracking with revolutionary starry body diagram interface, advanced site rotation recommendations, and medical validation. This medical-grade feature now provides patients with an engaging, constellation-themed experience while maintaining professional medical standards.
-
-**Architecture Evolution**:
-- **Modal → Screen Transition**: Migrated from modal-based to dedicated screen architecture for better UX
-- **Starry Body Diagram**: Revolutionary human body interface using interactive star constellations
-- **Enhanced Visual Design**: Vibrant gradients and engaging animations for patient motivation
-- **Immersive Experience**: Seamless blending of medical functionality with appealing visual design
-
-**Starry Human Body Diagram Features**:
-- **Constellation Interface**: Human body outline created with strategically placed twinkling stars
-- **Interactive Injection Sites**: Large, animated stars representing injection locations
-- **Role-Based Visualization**: Different access levels with visual restrictions
-- **Recommendation System**: Brightest twinkling stars indicate recommended sites
-- **Hover Labels**: Touch-activated labels for site information and guidance
-- **Seamless Integration**: Diagram blends into component background for immersive experience
-
-**Enhanced Visual Components**:
-- **HumanBodyDiagram**: Revolutionary starry constellation body interface
-- **Screen-Based Architecture**: Dedicated `insulin-monitoring.tsx` screen for better navigation
-- **Vibrant Color Scheme**: Engaging gradients replacing clinical themes:
-  - Arms: Pink-purple gradient (`#ff6b9d → #f093fb`)
-  - Stomach: Green-cyan gradient (`#43e97b → #38f9d7`)
-  - Legs: Blue gradient (`#4facfe → #00f2fe`)
-- **Enhanced Typography**: Larger, more engaging text with shadow effects
-
-**Architecture Components**:
-- **Dedicated Screen**: `app/(protected)/(patient)/insulin-monitoring.tsx`
-- **Starry Body Guide**: Interactive constellation-based injection site selection
-- **Injection Logging System**: Comprehensive insulin administration entry with visual appeal
-- **Site Rotation Algorithm**: Intelligent recommendation system with visual indicators
-- **Historical Analytics**: Pattern analysis with engaging data visualization
-
-**Key Features**:
-- **Medical Safety**: Role-based injection site access with visual safety restrictions
-- **Starry Site Rotation**: Visual algorithm preventing tissue damage through systematic rotation
-- **Prescribed Dosage Management**: Doctor-controlled default dosages with override capability
-- **Smart Dosage Validation**: Auto-populated prescribed amounts with alteration tracking
-- **Required Justification**: Mandatory notes when patients modify prescribed dosages
-- **Dosage Audit Trail**: Complete tracking of prescribed vs. actual dosage adherence
-- **Doctor Prescription Interface**: Dedicated screen for setting patient dosage defaults
-- **Dosage Validation**: Medical-grade validation for insulin units (1-100 units)
-- **Insulin Type Tracking**: Long-acting vs short-acting administration logging
-- **Meal Timing**: Pre-meal and post-meal injection timing tracking
-- **Visual Audit Trail**: Complete logging with engaging progress visualization
-
-**Role-Based Safety Features**:
-- **Patient Access**: Stomach, left leg, right leg injection sites (green/blue stars)
-- **Caretaker/Doctor/Admin Access**: Full access including arm injection sites (pink stars)
-- **Visual Restrictions**: Unavailable sites shown as dimmed stars with restriction indicators
-- **Safety Rationale**: Arm sites restricted for patients due to absorption variability
-
-**Enhanced Site Rotation Algorithm**:
-- **Visual Recommendations**: Brightest twinkling indicates optimal injection site
-- **Golden Ring Effect**: Recommended sites display animated golden rings
-- **Analysis Period**: Reviews last 10 injections within 7 days
-- **Recommendation Logic**: Suggests least recently used site-side combinations
-- **Medical Compliance**: Follows diabetes care best practices with engaging visual feedback
-- **Tissue Protection**: Prevents lipodystrophy through systematic rotation with visual guidance
-
-**Files Enhanced/Added**:
-- `app/(protected)/(patient)/insulin-monitoring.tsx` (dedicated screen)
-- `app/(protected)/(patient)/insulin-logging.tsx` (enhanced with prescribed dosage)
-- `app/(protected)/(caretaker)/insulin-logging.tsx` (caretaker insulin logging)
-- `app/(protected)/(doctor)/patient-dosages.tsx` (doctor prescription interface)
-- `components/coreComponents/HumanBodyDiagram.tsx` (starry constellation interface)
-- `components/coreComponents/InsulinEntryForm.tsx` (injection logging with diagram)
-- `components/coreComponents/InsulinReadingsViewer.tsx` (history and analytics)
-- `assets/styles/componentStyles/insulinEntryStyles.ts` (enhanced styling)
-- `assets/styles/componentStyles/insulinViewerStyles.ts` (viewer styling)
-- `assets/styles/protectedStyles/patientStyles/insulinMonitoringScreenStyles.ts` (screen styling)
-- `assets/styles/protectedStyles/patientStyles/insulinLoggingScreenStyles.ts` (enhanced with dosage styles)
-- `assets/styles/protectedStyles/caretakerStyles/insulinLoggingScreenStyles.ts` (caretaker styling)
-- `assets/styles/protectedStyles/doctorStyles/doctorDashboardStyles.ts` (enhanced with dosage management styles)
-
-### Prescribed Dosage Management System (July 2025)
-Implemented comprehensive doctor-controlled insulin dosage prescription system with patient override capability and mandatory justification tracking. This medical-grade system maintains therapeutic compliance while empowering patient autonomy with proper medical oversight.
-
-**Architecture Components**:
-- **Doctor Prescription Interface**: Dedicated screen for setting patient default dosages
-- **Smart Patient Defaults**: Auto-populated prescribed amounts based on insulin type
-- **Override Detection**: Real-time detection when patients modify prescribed dosages
-- **Mandatory Justification**: Required notes field when dosages are altered from prescription
-- **Audit Trail Integration**: Complete tracking of prescribed vs. actual dosage adherence
-
-**Prescribed Dosage Features**:
-- **Dual Insulin Types**: Separate prescriptions for short-acting and long-acting insulin
-- **Auto-Population**: Prescribed dosages automatically fill patient insulin logging forms
-- **Visual Indicators**: Clear UI showing prescribed amounts vs. patient modifications
-- **Alteration Tracking**: Real-time detection and visual feedback for dosage changes
-- **Required Explanations**: Notes become mandatory when patients override prescribed amounts
-- **Doctor Attribution**: Links prescribed dosages to prescribing physician for audit purposes
-
-**Patient Experience Enhancements**:
-- **Prescribed Dosage Cards**: Visual indicators showing doctor-prescribed amounts
-- **Auto-Filled Forms**: Default dosages automatically populate based on insulin type selection
-- **Override Flexibility**: Patients can modify dosages when medically necessary
-- **Visual Feedback**: Modified dosages highlighted with warning indicators and requirement badges
-- **Contextual Messaging**: Dynamic placeholder text and help messages for dosage fields
-- **Seamless Validation**: Enhanced form validation with prescribed dosage consideration
-
-**Doctor Interface Features**:
-- **Patient List Management**: View and manage all patients with current dosage prescriptions
-- **Dual Dosage Control**: Set both short-acting and long-acting insulin prescriptions
-- **Real-Time Updates**: Immediate synchronization with patient insulin logging interfaces
-- **Dosage Validation**: Medical-grade validation preventing dangerous dosage amounts
-- **Prescription Tracking**: Complete audit trail of when dosages were prescribed or modified
-
-**Database Integration**:
-- **Enhanced UserProfile Schema**: Added prescribed dosage fields to user profiles
-  - `prescribedShortActingDosage`: Number (doctor-set default for short-acting insulin)
-  - `prescribedLongActingDosage`: Number (doctor-set default for long-acting insulin)
-  - `prescribingDoctorId`: String (reference to doctor who set prescriptions)
-  - `dosageUpdatedAt`: Timestamp (when prescriptions were last modified)
-- **Enhanced InsulinRecord Schema**: Added dosage tracking fields
-  - `prescribedDosage`: Number (prescribed amount at time of injection)
-  - `isDosageAltered`: Boolean (whether patient modified prescribed amount)
-  - `prescribingDoctorId`: String (doctor attribution for audit purposes)
-- **Security Rules**: Role-based access ensuring only doctors can modify patient prescriptions
-- **Audit Trail**: Complete logging of dosage prescriptions and patient modifications
-- **Data Integrity**: Medical-grade validation and relationship verification
-
-**Database Integration (Original)**:
-- **Collection**: `insulinRecords` (global collection with userId field)
-- **Security**: Role-based access with relationship verification
-- **Validation**: Medical-grade data validation and audit trails
-- **Schema**: Comprehensive insulin record structure with medical validation
-- **Visual Data**: Integration with diagram state and site rotation history
-
-**Dashboard Integration**:
-- **Patient Dashboard**: Enhanced "✨ Insulin Monitoring" card with starry theming
-- **Screen Navigation**: Direct navigation to dedicated insulin monitoring screen
-- **Visual Consistency**: Matching gradient themes throughout patient experience
-- **Future Enhancement**: Advanced analytics with constellation-themed visualizations
-
-**Medical Compliance**:
-- **Enhanced Safety Protocols**: Visual role-based site access restrictions
-- **Medical Validation**: Dosage and timing validation with user-friendly feedback
-- **Visual Audit Trails**: Complete logging with engaging progress visualization
-- **Professional Standards**: Medical-grade interface with patient-friendly presentation
-
-### Enhanced Insulin Logging System Implementation (Updated July 2025)
-Implemented a dedicated insulin logging screen with a revolutionary starry body diagram modal, moving away from in-screen components to a more immersive modal experience. This approach provides better user engagement and follows the preference for screen-based navigation over modals for primary workflows.
+Implemented comprehensive insulin administration tracking with revolutionary starry body diagram interface, moving away from in-screen components to a more immersive modal experience. This approach provides better user engagement and follows the preference for screen-based navigation over modals for primary workflows.
 
 **New Architecture Components**:
 - **Dedicated Insulin Logging Screen**: `app/(protected)/(patient)/insulin-logging.tsx`
@@ -832,51 +693,42 @@ The project maintains comprehensive documentation across multiple files:
 - **Learning Resource**: Detailed explanations for educational purposes
 - **Audit Trail**: Complete history of decisions and changes
 
-## Enhanced Patient Reminder System (Comprehensive Implementation July 2025)
-Implemented a comprehensive, customizable reminder system for diabetes patients with local notifications, smart scheduling, and extensive customization options. This medical-grade feature provides patients with flexible meal, glucose, and insulin reminders with professional notification management.
+## Google Sign-In Authentication Flow
+```
+User Chooses Google Sign-In
+    ↓
+OAuth Authorization Request:
+    • Redirect to Google OAuth
+    • User grants permissions (profile, email)
+    • Authorization code returned
+    ↓
+Token Exchange:
+    • Exchange auth code for access token
+    • Validate token with Google
+    ↓
+Firebase Authentication:
+    • Create Google credential
+    • Sign in with Firebase Auth
+    • Link with existing account if available
+    ↓
+User Profile Management:
+    • New user? → Create profile with 'unverified' role
+    • Existing user? → Load existing profile
+    • Auto-populate name from Google profile
+    ↓
+Audit Logging:
+    • Log successful/failed sign-in attempts
+    • Track authentication provider
+    • Record device information
+    ↓
+Navigation to Protected Area
+```
 
-**Architecture Features**:
-- **Multi-Type Reminders**: Meal reminders (standard + custom), glucose monitoring, insulin administration
-- **Smart Scheduling**: Automatic glucose reminders 2 hours after each meal (including custom meals)
-- **Local Notifications**: Reliable, private notifications using Expo Notifications with safe wrapper architecture
-- **Firestore Integration**: Persistent settings storage with proper security rules and user ownership
-- **Custom Meal Support**: Unlimited custom meal reminders with emoji selection and flexible timing
-
-**Technical Implementation**:
-- **Notification Architecture**: Safe wrapper utility (`notificationUtils.ts`) prevents native module errors
-- **Time Management**: Cross-platform time picker with iOS/Android specific handling
-- **Settings Persistence**: Firestore-based storage with merge operations for document creation
-- **Permission Handling**: Comprehensive notification permission management with user guidance
-- **Scheduling Engine**: Daily recurring notifications with unique identifiers for easy management
-
-**User Experience Features**:
-- **Intuitive Time Adjustment**: Tap any meal time to modify with native time picker
-- **Custom Meal Creation**: Add unlimited custom meals with name, emoji, and time customization
-- **Visual Feedback**: Professional modal interface with emoji selection and validation
-- **Smart Defaults**: Sensible default times (8 AM breakfast, 12:30 PM lunch, 6 PM dinner)
-- **Removal Management**: Confirmation dialogs for custom meal removal with clear user intent
-
-**Security & Compliance**:
-- **User Ownership**: Firestore rules ensure users can only access their own reminder settings
-- **Data Privacy**: All reminder data stored privately, never shared between users
-- **Safe Notifications**: Wrapper architecture prevents crashes when notification services unavailable
-- **Error Handling**: Comprehensive error management with user-friendly feedback
-
-**Files Implemented**:
-- `app/(protected)/(patient)/reminders.tsx` (comprehensive reminder management screen)
-- `utils/notificationUtils.ts` (safe notification wrapper with error prevention)
-- `firestore.rules` (enhanced with userProfiles collection security rules)
-- `assets/styles/protectedStyles/patientStyles/patientDashboardStyles.ts` (modal and reminder styles)
-
-**Technical Improvements**:
-- **Platform Compatibility**: iOS spinner and Android default time picker displays
-- **Memory Management**: Proper state cleanup and notification cancellation
-- **Type Safety**: Full TypeScript implementation with comprehensive interfaces
-- **Error Recovery**: Graceful handling of permission denials and service unavailability
-- **Maintainable Code**: Clean separation of concerns and modular architecture
-
-**User Impact**:
-- **Medication Adherence**: Timely reminders improve diabetes management compliance
-- **Lifestyle Integration**: Custom meals accommodate diverse eating schedules and cultural preferences
-- **Glucose Monitoring**: Automated post-meal reminders ensure consistent blood sugar tracking
-- **Professional Care**: Reliable insulin reminders support complex medication regimens
+### Google Sign-In Security Features
+- **OAuth 2.0 Compliance**: Industry-standard authentication protocol
+- **Firebase Integration**: Seamless integration with existing auth system
+- **Credential Management**: Environment-based OAuth credential storage
+- **Cross-Platform Support**: Web, iOS, and Android OAuth configurations
+- **Audit Trail**: Complete logging of OAuth authentication events
+- **Error Recovery**: Graceful handling of OAuth failures and cancellations
+- **Account Linking**: Automatic linking with existing email-based accounts
