@@ -3,7 +3,25 @@
 ## 🏗️ Overview
 Diabeto is a medical records management application built with React Native/Expo, featuring comprehensive authentication, role-based access control, and medical-grade security compliance. The app supports multiple user types (patients, doctors, caretakers, admins) with sophisticated relationship-based data access.
 
-**Latest Update**: Implemented Landing Page Architecture for secure, race-condition-free navigation that prevents unauthorized component mounting and inappropriate access alerts.
+**📄 Document Purpose**: High-level system design decisions, architectural patterns, and design philosophy.
+
+**✅ What belongs in this document:**
+- Core architectural principles and design decisions
+- System design patterns and approaches
+- Security architecture and authentication flows
+- High-level component relationships
+- Design philosophy and medical compliance requirements
+- Cross-cutting concerns and system-wide patterns
+- Technology choices and their rationale
+
+**❌ What does NOT belong here:**
+- Detailed file-by-file breakdowns (→ PROJECT_STRUCTURE.md)
+- Specific implementation code examples (→ PROJECT_STRUCTURE.md)
+- Feature implementation timelines (→ DOCUMENTATION_INDEX.md)
+- Bug fixes and troubleshooting (→ BUGS_AND_FIXES.md)
+- Database schema details (→ DATABASE_SCHEMA.md)
+
+**Latest Update**: Implemented Enhanced Patient Reminder System with comprehensive meal, glucose, and insulin reminders, including custom meal support, local notifications, and Firestore integration with proper security rules.
 
 ## 🎯 Core Architecture Principles
 
@@ -121,7 +139,26 @@ diabeto/
 │
 ├── 🎨 UI Components & Assets
 │   ├── components/                  # Reusable components
+│   │   ├── coreComponents/         # Essential app components
+│   │   │   ├── AppHeader.tsx       # Header with user menu
+│   │   │   ├── UserMenu.tsx        # User actions dropdown
+│   │   │   ├── SignOutButton.tsx   # Secure sign out
+│   │   │   ├── DoctorCredentialRequest.tsx # Doctor verification
+│   │   │   ├── DoctorRequestReview.tsx     # Admin review interface
+│   │   │   ├── InvitePatientForm.tsx       # Patient invitation
+│   │   │   ├── GlucoseMonitoringHub.tsx    # Glucose system main hub
+│   │   │   ├── GlucoseEntryForm.tsx        # Manual glucose entry
+│   │   │   ├── GlucoseReadingsViewer.tsx   # History and analytics
+│   │   │   └── CGMIntegration.tsx          # Continuous glucose monitor sync
+│   │   └── miscComponents/         # Helper components
 │   ├── assets/styles/              # Organized styling
+│   │   ├── componentStyles/        # Component-specific styles
+│   │   │   ├── glucoseEntryStyles.ts       # Manual entry form styles
+│   │   │   ├── glucoseViewerStyles.ts      # History viewer styles
+│   │   │   ├── glucoseHubStyles.ts         # Main hub styles
+│   │   │   └── cgmStyles.ts                # CGM integration styles
+│   │   ├── authStyles/             # Authentication styles
+│   │   └── protectedStyles/        # Protected area styles
 │   ├── assets/images/              # Icons and branding
 │   └── constants/Colors.ts         # Theme management
 │
@@ -232,6 +269,83 @@ export default function ProtectedLayout() {
 
 ---
 
+## 🎯 Patient Empowerment Update (July 2025)
+
+### Universal Injection Site Access Implementation
+Following modern diabetes care principles, **all injection sites are now accessible to patients** with enhanced educational guidance and safety indicators. This change reflects the medical community's shift towards patient empowerment through education rather than restriction.
+
+**Key Changes**:
+- **🔓 Arm Sites Unlocked**: Left and right arm injection sites now available for all patients
+- **🅰️ Advanced Site Indicators**: Orange "A" badges clearly mark advanced injection sites requiring extra care
+- **📚 Enhanced Medical Education**: Detailed, role-specific guidance for proper injection technique
+- **⚠️ Safety Through Education**: Comprehensive medical notes and warnings replace access restrictions
+- **🎨 Visual Learning**: Clear indicators and educational content promote safe self-administration
+
+**Medical Rationale**:
+- **Patient Autonomy**: Empowers patients to make informed decisions about their diabetes care
+- **Site Rotation Flexibility**: Provides maximum options for proper injection site rotation
+- **Real-World Alignment**: Reflects how experienced patients actually manage their diabetes
+- **Educational Approach**: Promotes learning and skill development over paternalistic restrictions
+- **Modern Diabetes Care**: Follows current best practices in diabetes self-management education
+
+**Implementation Details**:
+- **Advanced Site Marking**: Orange "A" indicator appears on arm sites for patients
+- **Role-Specific Guidance**: Different medical advice for patients vs. healthcare professionals
+- **Enhanced Warnings**: Clear, comprehensive safety information for advanced sites
+- **Visual Education**: Legend includes advanced site explanation for patient reference
+- **Progressive Disclosure**: Information provided at the right time in the injection process
+
+This update transforms the app from a restrictive tool to an educational platform that respects patient capability while maintaining the highest safety standards through comprehensive guidance and clear visual indicators.
+
+---
+
+## 🔔 Patient Reminder System (July 2025)
+
+### Comprehensive Health Notification Architecture
+Implemented a sophisticated reminder system that supports patients in maintaining consistent diabetes care routines through intelligent, user-customizable notifications.
+
+**System Architecture**:
+- **🔧 Expo Notifications Integration**: Cross-platform notification system with reliable daily scheduling
+- **📱 Device-Native Notifications**: Proper notification center integration with badges and sounds
+- **🔄 Firebase Sync**: Settings synchronized across devices via Firestore for seamless experience
+- **⏰ Smart Scheduling**: Intelligent dependency management between meal and glucose reminders
+- **🛡️ Permission Management**: Graceful handling of notification permissions with user guidance
+
+**Reminder Categories**:
+
+**🍽️ Meal Reminders**:
+- **Customizable Times**: User-defined breakfast, lunch, and dinner schedules
+- **Daily Repetition**: Automatic daily scheduling for consistent meal routines
+- **Visual Time Selection**: Intuitive time picker interface for easy scheduling
+
+**📊 Glucose Check Reminders**:
+- **Post-Meal Automation**: Automatically triggers 2 hours after each meal
+- **Smart Dependencies**: Links directly to meal reminder settings for seamless integration
+- **Medical Best Practices**: Follows standard 2-hour post-meal glucose monitoring guidelines
+
+**💉 Insulin Reminders**:
+- **Long-Acting Insulin Focus**: Daily reminder for consistent insulin timing
+- **Flexible Scheduling**: User-specified time (commonly bedtime or morning routine)
+- **Adherence Support**: Helps maintain critical medication consistency
+
+**Design Philosophy**:
+- **Patient Autonomy**: Users control all aspects of their reminder experience
+- **Medical Appropriateness**: Notifications are informative, not intrusive like alarms
+- **Cross-Platform Consistency**: Same experience across iOS and Android
+- **Privacy Respect**: No data leaves device for notification scheduling
+- **Gentle Guidance**: Supportive reminders that respect user choice and lifestyle
+
+**Technical Implementation**:
+- **Notification vs. Alarm Decision**: Chose notifications over device alarms for better user experience
+- **Daily Scheduling**: Uses Expo's daily trigger system for reliable repetition
+- **Settings Persistence**: Firebase integration ensures settings survive app updates
+- **Permission Handling**: Comprehensive permission flow with clear user guidance
+- **Performance Optimization**: Efficient notification scheduling with minimal battery impact
+
+This system represents modern healthcare app design: empowering patients with tools while respecting their autonomy and daily routines.
+
+---
+
 ## 📚 Documentation Structure
 
 The project maintains comprehensive documentation across multiple files:
@@ -253,301 +367,516 @@ The project maintains comprehensive documentation across multiple files:
 ### Landing Page Architecture Implementation
 Implemented a centralized landing page approach for secure, race-condition-free navigation in the protected section. This architectural change enhances security by preventing unauthorized component mounting and improves user experience by eliminating inappropriate access alerts.
 
-**Key Benefits**:
-- **Enhanced Security**: Only authorized components mount and execute
-- **Better User Experience**: No inappropriate alerts or screen flashes
-- **Improved Performance**: Reduced unnecessary component operations
-- **Easier Maintenance**: Centralized navigation logic
+**Architecture Benefits**:
+
+*Security Improvements*:
+- ✅ No unauthorized component mounting - components never execute unless user is authorized
+- ✅ Centralized access control logic - single source of truth for navigation decisions
+- ✅ Clear audit trail for navigation - all routing decisions logged and traceable
+- ✅ No side effect execution for unauthorized users - prevents data leaks and security issues
+
+*Performance Enhancements*:
+- ✅ Reduced unnecessary component mounting - only authorized components are created
+- ✅ Faster navigation with single loading screen - unified loading experience
+- ✅ Memory efficiency improvements - fewer component instances in memory
+- ✅ Better React performance with fewer re-renders - optimized component lifecycle
+
+*User Experience Improvements*:
+- ✅ No inappropriate "Access Denied" alerts - users never see unauthorized screens
+- ✅ Smooth, professional loading experience - consistent branding and progress indication
+- ✅ Consistent navigation behavior - same flow regardless of user role
+- ✅ No screen flashes or dashboard glimpses - clean, seamless navigation
+
+*Maintenance Benefits*:
+- ✅ Single source of truth for navigation logic - easier to understand and modify
+- ✅ Easier testing and debugging - centralized logic is simpler to test
+- ✅ Cleaner, more focused components - role-specific components focus on their features
+- ✅ Better separation of concerns - navigation logic separated from feature logic
 
 **Files Modified**:
 - `app/(protected)/index.tsx` (new centralized landing page)
 - `app/(protected)/_layout.tsx` (simplified to auth guard only)
 - Role-specific dashboard components (cleaned access control logic)
 
-### Documentation Enhancement
-- **Enhanced Architecture Documentation**: Updated with landing page implementation details
-- **Comprehensive Bug Tracking**: All issues and resolutions documented in BUGS_AND_FIXES.md
-- **Private Documentation**: Sensitive details moved to internal documentation files
+### Dashboard Design Unification (July 2025)
+Implemented comprehensive design unification between patient and caretaker dashboards while maintaining distinct identities through unique color palettes. Both dashboards now share the same engaging, modern card-based design philosophy.
 
-> **Note**: Detailed bug resolution history and troubleshooting information is maintained in `BUGS_AND_FIXES.md` for comprehensive knowledge management.
+**Patient Dashboard Design**:
+- **Color Palette**: Blue-purple gradient (`#667eea → #764ba2 → #f093fb`)
+- **Hero Section**: Starry welcome card with motivational messaging
+- **Action Cards**: Vibrant gradient cards with specific feature colors:
+  - Glucose: Blue gradient (`#4facfe → #00f2fe`)
+  - Insulin: Green gradient (`#43e97b → #38f9d7`) with "✨ Starry Guide" branding
+  - Invitations: Pink-yellow gradient (`#fa709a → #fee140`)
+  - Profile: Soft gradient (`#a8edea → #fed6e3`)
+- **Health Tips**: Daily wellness advice with iconography
 
-## 🎯 Development Guidelines
+**Caretaker Dashboard Design**:
+- **Color Palette**: Purple-violet gradient (`#6b46c1 → #8b5cf6 → #a855f7`)
+- **Hero Section**: Heart-themed welcome card emphasizing care and dedication
+- **Action Cards**: Professional gradient cards with caretaker-specific colors:
+  - Glucose: Emerald gradient (`#10b981 → #059669`)
+  - Insulin: Amber gradient (`#f59e0b → #d97706`) with "✨ Starry Guide" branding
+  - Invite Patient: Pink gradient (`#ec4899 → #be185d`)
+  - View Patients: Blue gradient (`#3b82f6 → #1d4ed8`)
+- **Professional Upgrade**: Doctor verification section with upgrade call-to-action
+- **Care Tips**: Caretaker-specific guidance and best practices
 
-### Architecture Decision Making
-- **Security First**: All architectural decisions prioritize medical-grade security
-- **Landing Page Pattern**: Use centralized navigation for role-based routing
-- **Component Isolation**: Keep authentication, authorization, and business logic separate
-- **Audit Everything**: All user actions and system events must be logged
+**Design Philosophy**:
+- **Visual Consistency**: Same layout structure, card styles, and animation patterns
+- **Distinct Identity**: Unique color palettes reflecting different user roles
+- **Engaging Experience**: Modern gradients, shadows, and visual effects
+- **Professional Feel**: Medical-grade appearance with approachable design
+- **Accessibility**: High contrast, clear typography, and intuitive navigation
+- **Streamlined UI**: Removed duplicate profile access (accessible via top-right user menu)
 
-### Documentation Standards
-- **ARCHITECTURE.md**: High-level patterns, principles, and architectural decisions
-- **BUGS_AND_FIXES.md**: Detailed bug resolution history and prevention strategies  
-- **Internal Documentation**: Sensitive implementation details kept in private files
-- **Code Comments**: Inline documentation for complex business logic
+### Profile Management & Security Enhancements (July 2025)
+Implemented enhanced profile management with robust security measures to prevent unauthorized role changes and maintain data integrity.
 
-### For New Developers
-1. **Start with**: `ARCHITECTURE.md` for high-level understanding
-2. **Bug Context**: `BUGS_AND_FIXES.md` for known issues and solutions
-3. **Implementation**: Follow established patterns and security principles
-4. **Documentation**: Update relevant docs when making changes
+**Security Improvements**:
+- **Role Lock**: Users cannot change roles after initial profile creation (prevents data integrity issues)
+- **Admin Override**: Only administrators can change user roles after initial setup
+- **Navigation Controls**: Proper back navigation for existing users editing profiles
+- **Duplicate Removal**: Eliminated redundant profile access cards from dashboards
+
+**Profile Screen Features**:
+- **Dynamic Interface**: Different behavior for initial creation vs. profile editing
+- **Role Restrictions**: Visual and functional restrictions on role changes for security
+- **Smart Navigation**: Back button for existing users, automatic routing for new users
+- **Clear Messaging**: Context-aware titles, buttons, and security notices
+- **Data Integrity**: Prevents role changes that could compromise medical data logs
+
+**User Experience Improvements**:
+- **Streamlined Dashboards**: Removed duplicate profile cards (accessible via user menu)
+- **Clear Navigation**: Back to dashboard functionality for existing users
+- **Security Transparency**: Clear messaging about role change restrictions
+- **Professional Flow**: Seamless initial setup with locked security after completion
+
+### Enhanced Insulin Logging System (Universal Access)
+Implemented comprehensive insulin logging with revolutionary starry body diagram modal and unified caretaker/patient functionality. Both user types now have access to the same immersive insulin logging experience with role-appropriate access controls.
+
+**Universal Insulin Logging Features**:
+- **Patient & Caretaker Access**: Both roles use the same engaging starry body diagram interface
+- **Dedicated Screens**: Screen-based architecture for better navigation and user experience
+- **StarryBodyDiagram Modal**: Revolutionary constellation-themed injection site selection
+- **Universal Site Access**: All injection sites available with enhanced educational guidance
+- **Role-Based Permissions**: Professional access controls with visual safety indicators
+
+**Caretaker-Specific Enhancements**:
+- **Patient Selection**: Additional field for specifying which patient is receiving insulin
+- **Professional Color Scheme**: Amber/orange gradients matching caretaker dashboard theme
+- **Care Provider Context**: Interface adapted for healthcare provider use cases
+- **Same Starry Experience**: Identical engaging star animation and site selection experience
+
+**Files Enhanced/Added**:
+- `app/(protected)/(patient)/insulin-logging.tsx` (enhanced patient screen)
+- `app/(protected)/(caretaker)/insulin-logging.tsx` (new caretaker screen)
+- `app/(protected)/(caretaker)/_layout.tsx` (updated navigation routing)
+- `components/coreComponents/StarryBodyDiagram.tsx` (universal modal component)
+- `assets/styles/protectedStyles/caretakerStyles/insulinLoggingScreenStyles.ts` (caretaker styling)
+
+**Architecture Benefits**:
+- **Unified Experience**: Same engaging interface across all user types
+- **Role Flexibility**: Caretakers can log insulin for multiple patients
+- **Design Consistency**: Maintains dashboard color themes in logging screens
+- **Medical Compliance**: Professional-grade validation with engaging presentation
+- **Scalable Pattern**: Template for other cross-role medical features
+
+### Enhanced Glucose Monitoring System Implementation (Updated Current Session - Advanced)
+Implemented comprehensive glucose tracking with vibrant UI/UX enhancements, screen-based navigation, smart features, advanced finger selection system, and separated architecture design. Recently enhanced with complete finger coverage, animated recommendations, professional medical interface design, and architectural separation for timing and finger selection systems.
+
+**Architecture Evolution**:
+- **v1**: Modal-based glucose monitoring hub (components/coreComponents/GlucoseMonitoringHub.tsx) - Legacy
+- **v2**: Dedicated screen-based approach (app/(protected)/(patient)/glucose-monitoring.tsx) - Initial
+- **v3**: Enhanced with vibrant UI, smart features, and unified design system - Previous
+- **v4**: Modernized with header cleanup, style reconstruction, and navigation improvements - Previous
+- **v5**: Advanced finger selection system with animations, complete medical compliance, and separated architecture design - Previous
+- **v6**: **CURRENT** - Screen-based finger selection with dedicated hand selection screen and navigation flow
+
+**Advanced Finger Selection System (v6 - CURRENT)**:
+- **Screen-Based Navigation**: Dedicated `/hand-selection` screen replacing modal approach
+- **Professional User Experience**: Full-screen interface following modern mobile app patterns
+- **Two-Step Selection Flow**: Hand selection → Finger selection with back navigation
+- **Image-Based Interface**: Real hand photos (left_hand_drawing.avif, right_hand_drawing.jpg)
+- **Interactive Overlays**: Positioned finger buttons on actual hand images
+- **Callback Integration**: Clean separation between form and selection with callback mechanism
+- **Navigation Architecture**: Uses expo-router for proper screen-based navigation flow
+- **Enhanced Accessibility**: Full-screen experience with proper touch targets and navigation
+
+**Previous Finger Selection System (v5)**:
+- **Complete Medical Coverage**: All 10 fingers including thumbs and pinkies for proper rotation
+- **Animated Recommendation System**: Pulse animations with golden glow effects for optimal user guidance
+- **Smart Grid Layout**: Logical 2x2 arrangement matching natural hand anatomy
+- **Professional Medical Interface**: Enhanced visual hierarchy with proper headers and clear labeling
+- **Accessibility Compliance**: Larger fonts, better contrast, and optimal touch targets
+- **Separated Architecture**: Independent styling systems for timing and finger selection
+
+**Latest Architectural Improvements (v5)**:
+- **Architecture Separation**: Independent styling systems for timing and finger selection sections
+- **Timing Grid Reconstruction**: Dedicated 2x2 grid system with centered random option
+- **Layout Stability**: Eliminated style conflicts preventing layout corruption
+- **Maintainable Design**: Each UI section has independent styling for easier future modifications
+- **Professional Visual Hierarchy**: Distinct color themes and styling approaches for different sections
+
+**Modernization Foundation (v4-v5)**:
+- **Header Unification**: Removed duplicate header from GlucoseEntryForm for clean navigation
+- **Style System Reconstruction**: Complete rewrite of glucoseEntryStyles.ts with separated architectures
+- **Navigation Enhancement**: Seamless parent-child integration with glucose-monitoring.tsx screen
+- **Advanced UI Components**: Animated finger selection with pulse effects and visual emphasis
+- **Medical Compliance**: Complete finger rotation system to prevent injury and promote health
+
+**Enhanced Visual Design (v3-v5)**:
+- **Vibrant Aesthetics**: Complete redesign with gradients, emoji, and modern card layouts
+- **Unified Design Language**: Matches enhanced insulin logging system aesthetic
+- **Dynamic Color Schemes**: Context-aware gradients based on reading types and status
+- **Engaging Interactions**: Smooth animations, hover effects, and visual feedback
+- **Modern Typography**: Enhanced readability with shadow effects and proper hierarchy
+- **Clean Navigation**: Headerless forms with parent-managed navigation for consistency
+- **Professional Animations**: Subtle pulse effects and golden glow for recommendations
+
+**Smart Features (v3)**:
+- **Intelligent Finger Rotation**: AI-powered recommendations to prevent overuse and injury
+- **Real-Time Validation**: Instant glucose value checking with visual status indicators
+- **Smart Defaults**: Context-aware form population and suggestions
+- **Enhanced CGM Integration**: Modern device management with realistic connection feedback
+- **Statistical Overview**: Gradient-enhanced data visualization and trend analysis
+
+**Architecture Components**:
+- **Screen-Based Navigation**: Complete elimination of modal dependencies for better UX
+- **Enhanced Entry System**: Smart form with finger rotation tracking and visual feedback
+- **Modern Readings Viewer**: Card-based layout with statistical insights
+- **Advanced CGM Integration**: Comprehensive device management and sync controls
+- **Unified Styling System**: Shared design tokens with insulin logging system
+
+**Key Features**:
+- **Dual Entry Methods**: Manual meter readings and CGM device synchronization
+- **Medical Validation**: Real-time glucose range checking with emoji status indicators
+- **Smart Finger Selection**: Intelligent recommendations based on usage history
+- **Enhanced Data Visualization**: Modern card layouts with gradient backgrounds
+- **Device Support**: Integration with Dexcom G6/G7, FreeStyle Libre 2/3, and Medtronic Guardian 4
+- **Data Security**: All glucose readings stored with proper user relationships and audit trails
+
+**Files Enhanced (v3-v6)**:
+- `app/(protected)/(patient)/glucose-monitoring.tsx` (enhanced vibrant screen with unified navigation)
+- `app/(protected)/hand-selection.tsx` (NEW - dedicated finger selection screen)
+- `components/coreComponents/GlucoseEntryForm.tsx` (screen-based navigation, callback integration, modern UI)
+- `components/coreComponents/GlucoseReadingsViewer.tsx` (card-based design, headerless integration)
+- `components/coreComponents/CGMIntegration.tsx` (enhanced device management, headerless integration)
+- `assets/styles/componentStyles/glucoseEntryStyles.ts` (completely reconstructed modern styling)
+- `assets/styles/componentStyles/handSelectionStyles.ts` (image-based overlay styles)
+- `assets/styles/protectedStyles/patientStyles/glucoseMonitoringScreenStyles.ts` (modern screen styles)
+- `app/(protected)/(patient)/_layout.tsx` (proper Stack screen configuration for headerless navigation)
+
+**Advanced Technical Improvements (v5)**:
+- **Animation Architecture**: React Native Animated API with pulse effects and native driver optimization
+- **Medical Compliance System**: Complete 10-finger rotation tracking with smart recommendations
+- **Enhanced Visual Hierarchy**: Proper header styling, recommendation separation, and clear labeling
+- **Responsive Grid Design**: 2x2 layout with optimal touch targets and mobile-first approach
+- **Professional UI System**: Golden glow effects, enhanced shadows, and medical-grade aesthetics
+
+**Recent Technical Improvements (v4)**:
+- **Header Architecture**: Eliminated duplicate headers for clean parent-child component relationships
+- **Style System**: Complete reconstruction of corrupted style files with modern, maintainable architecture
+- **Navigation Flow**: Enhanced parent screen integration with proper onClose prop handling
+- **Code Quality**: Full TypeScript compliance and error resolution
+- **Maintainability**: Clean code structure for future development and modifications
+- `assets/styles/protectedStyles/patientStyles/glucoseMonitoringScreenStyles.ts` (enhanced screen styles)
+
+### Insulin Monitoring System Implementation (Enhanced July 2025)
+Implemented comprehensive insulin administration tracking with revolutionary starry body diagram interface, advanced site rotation recommendations, and medical validation. This medical-grade feature now provides patients with an engaging, constellation-themed experience while maintaining professional medical standards.
+
+**Architecture Evolution**:
+- **Modal → Screen Transition**: Migrated from modal-based to dedicated screen architecture for better UX
+- **Starry Body Diagram**: Revolutionary human body interface using interactive star constellations
+- **Enhanced Visual Design**: Vibrant gradients and engaging animations for patient motivation
+- **Immersive Experience**: Seamless blending of medical functionality with appealing visual design
+
+**Starry Human Body Diagram Features**:
+- **Constellation Interface**: Human body outline created with strategically placed twinkling stars
+- **Interactive Injection Sites**: Large, animated stars representing injection locations
+- **Role-Based Visualization**: Different access levels with visual restrictions
+- **Recommendation System**: Brightest twinkling stars indicate recommended sites
+- **Hover Labels**: Touch-activated labels for site information and guidance
+- **Seamless Integration**: Diagram blends into component background for immersive experience
+
+**Enhanced Visual Components**:
+- **HumanBodyDiagram**: Revolutionary starry constellation body interface
+- **Screen-Based Architecture**: Dedicated `insulin-monitoring.tsx` screen for better navigation
+- **Vibrant Color Scheme**: Engaging gradients replacing clinical themes:
+  - Arms: Pink-purple gradient (`#ff6b9d → #f093fb`)
+  - Stomach: Green-cyan gradient (`#43e97b → #38f9d7`)
+  - Legs: Blue gradient (`#4facfe → #00f2fe`)
+- **Enhanced Typography**: Larger, more engaging text with shadow effects
+
+**Architecture Components**:
+- **Dedicated Screen**: `app/(protected)/(patient)/insulin-monitoring.tsx`
+- **Starry Body Guide**: Interactive constellation-based injection site selection
+- **Injection Logging System**: Comprehensive insulin administration entry with visual appeal
+- **Site Rotation Algorithm**: Intelligent recommendation system with visual indicators
+- **Historical Analytics**: Pattern analysis with engaging data visualization
+
+**Key Features**:
+- **Medical Safety**: Role-based injection site access with visual safety restrictions
+- **Starry Site Rotation**: Visual algorithm preventing tissue damage through systematic rotation
+- **Prescribed Dosage Management**: Doctor-controlled default dosages with override capability
+- **Smart Dosage Validation**: Auto-populated prescribed amounts with alteration tracking
+- **Required Justification**: Mandatory notes when patients modify prescribed dosages
+- **Dosage Audit Trail**: Complete tracking of prescribed vs. actual dosage adherence
+- **Doctor Prescription Interface**: Dedicated screen for setting patient dosage defaults
+- **Dosage Validation**: Medical-grade validation for insulin units (1-100 units)
+- **Insulin Type Tracking**: Long-acting vs short-acting administration logging
+- **Meal Timing**: Pre-meal and post-meal injection timing tracking
+- **Visual Audit Trail**: Complete logging with engaging progress visualization
+
+**Role-Based Safety Features**:
+- **Patient Access**: Stomach, left leg, right leg injection sites (green/blue stars)
+- **Caretaker/Doctor/Admin Access**: Full access including arm injection sites (pink stars)
+- **Visual Restrictions**: Unavailable sites shown as dimmed stars with restriction indicators
+- **Safety Rationale**: Arm sites restricted for patients due to absorption variability
+
+**Enhanced Site Rotation Algorithm**:
+- **Visual Recommendations**: Brightest twinkling indicates optimal injection site
+- **Golden Ring Effect**: Recommended sites display animated golden rings
+- **Analysis Period**: Reviews last 10 injections within 7 days
+- **Recommendation Logic**: Suggests least recently used site-side combinations
+- **Medical Compliance**: Follows diabetes care best practices with engaging visual feedback
+- **Tissue Protection**: Prevents lipodystrophy through systematic rotation with visual guidance
+
+**Files Enhanced/Added**:
+- `app/(protected)/(patient)/insulin-monitoring.tsx` (dedicated screen)
+- `app/(protected)/(patient)/insulin-logging.tsx` (enhanced with prescribed dosage)
+- `app/(protected)/(caretaker)/insulin-logging.tsx` (caretaker insulin logging)
+- `app/(protected)/(doctor)/patient-dosages.tsx` (doctor prescription interface)
+- `components/coreComponents/HumanBodyDiagram.tsx` (starry constellation interface)
+- `components/coreComponents/InsulinEntryForm.tsx` (injection logging with diagram)
+- `components/coreComponents/InsulinReadingsViewer.tsx` (history and analytics)
+- `assets/styles/componentStyles/insulinEntryStyles.ts` (enhanced styling)
+- `assets/styles/componentStyles/insulinViewerStyles.ts` (viewer styling)
+- `assets/styles/protectedStyles/patientStyles/insulinMonitoringScreenStyles.ts` (screen styling)
+- `assets/styles/protectedStyles/patientStyles/insulinLoggingScreenStyles.ts` (enhanced with dosage styles)
+- `assets/styles/protectedStyles/caretakerStyles/insulinLoggingScreenStyles.ts` (caretaker styling)
+- `assets/styles/protectedStyles/doctorStyles/doctorDashboardStyles.ts` (enhanced with dosage management styles)
+
+### Prescribed Dosage Management System (July 2025)
+Implemented comprehensive doctor-controlled insulin dosage prescription system with patient override capability and mandatory justification tracking. This medical-grade system maintains therapeutic compliance while empowering patient autonomy with proper medical oversight.
+
+**Architecture Components**:
+- **Doctor Prescription Interface**: Dedicated screen for setting patient default dosages
+- **Smart Patient Defaults**: Auto-populated prescribed amounts based on insulin type
+- **Override Detection**: Real-time detection when patients modify prescribed dosages
+- **Mandatory Justification**: Required notes field when dosages are altered from prescription
+- **Audit Trail Integration**: Complete tracking of prescribed vs. actual dosage adherence
+
+**Prescribed Dosage Features**:
+- **Dual Insulin Types**: Separate prescriptions for short-acting and long-acting insulin
+- **Auto-Population**: Prescribed dosages automatically fill patient insulin logging forms
+- **Visual Indicators**: Clear UI showing prescribed amounts vs. patient modifications
+- **Alteration Tracking**: Real-time detection and visual feedback for dosage changes
+- **Required Explanations**: Notes become mandatory when patients override prescribed amounts
+- **Doctor Attribution**: Links prescribed dosages to prescribing physician for audit purposes
+
+**Patient Experience Enhancements**:
+- **Prescribed Dosage Cards**: Visual indicators showing doctor-prescribed amounts
+- **Auto-Filled Forms**: Default dosages automatically populate based on insulin type selection
+- **Override Flexibility**: Patients can modify dosages when medically necessary
+- **Visual Feedback**: Modified dosages highlighted with warning indicators and requirement badges
+- **Contextual Messaging**: Dynamic placeholder text and help messages for dosage fields
+- **Seamless Validation**: Enhanced form validation with prescribed dosage consideration
+
+**Doctor Interface Features**:
+- **Patient List Management**: View and manage all patients with current dosage prescriptions
+- **Dual Dosage Control**: Set both short-acting and long-acting insulin prescriptions
+- **Real-Time Updates**: Immediate synchronization with patient insulin logging interfaces
+- **Dosage Validation**: Medical-grade validation preventing dangerous dosage amounts
+- **Prescription Tracking**: Complete audit trail of when dosages were prescribed or modified
+
+**Database Integration**:
+- **Enhanced UserProfile Schema**: Added prescribed dosage fields to user profiles
+  - `prescribedShortActingDosage`: Number (doctor-set default for short-acting insulin)
+  - `prescribedLongActingDosage`: Number (doctor-set default for long-acting insulin)
+  - `prescribingDoctorId`: String (reference to doctor who set prescriptions)
+  - `dosageUpdatedAt`: Timestamp (when prescriptions were last modified)
+- **Enhanced InsulinRecord Schema**: Added dosage tracking fields
+  - `prescribedDosage`: Number (prescribed amount at time of injection)
+  - `isDosageAltered`: Boolean (whether patient modified prescribed amount)
+  - `prescribingDoctorId`: String (doctor attribution for audit purposes)
+- **Security Rules**: Role-based access ensuring only doctors can modify patient prescriptions
+- **Audit Trail**: Complete logging of dosage prescriptions and patient modifications
+- **Data Integrity**: Medical-grade validation and relationship verification
+
+**Database Integration (Original)**:
+- **Collection**: `insulinRecords` (global collection with userId field)
+- **Security**: Role-based access with relationship verification
+- **Validation**: Medical-grade data validation and audit trails
+- **Schema**: Comprehensive insulin record structure with medical validation
+- **Visual Data**: Integration with diagram state and site rotation history
+
+**Dashboard Integration**:
+- **Patient Dashboard**: Enhanced "✨ Insulin Monitoring" card with starry theming
+- **Screen Navigation**: Direct navigation to dedicated insulin monitoring screen
+- **Visual Consistency**: Matching gradient themes throughout patient experience
+- **Future Enhancement**: Advanced analytics with constellation-themed visualizations
+
+**Medical Compliance**:
+- **Enhanced Safety Protocols**: Visual role-based site access restrictions
+- **Medical Validation**: Dosage and timing validation with user-friendly feedback
+- **Visual Audit Trails**: Complete logging with engaging progress visualization
+- **Professional Standards**: Medical-grade interface with patient-friendly presentation
+
+### Enhanced Insulin Logging System Implementation (Updated July 2025)
+Implemented a dedicated insulin logging screen with a revolutionary starry body diagram modal, moving away from in-screen components to a more immersive modal experience. This approach provides better user engagement and follows the preference for screen-based navigation over modals for primary workflows.
+
+**New Architecture Components**:
+- **Dedicated Insulin Logging Screen**: `app/(protected)/(patient)/insulin-logging.tsx`
+- **StarryBodyDiagram Modal**: Revolutionary modal-based human body interface with real star animations
+- **Screen-First Philosophy**: Primary workflow uses screens, supplemented by modals for specialized interactions
+- **Enhanced Star System**: Custom animated star components with twinkling, scaling, and glow effects
+
+**StarryBodyDiagram Modal Features**:
+- **Real Star Animations**: Custom `AnimatedStar` components with natural twinkling effects using Expo's animation system
+- **Background Star Field**: 80+ randomly positioned background stars with varied colors and animation timings
+- **Injection Site Stars**: Large, interactive gradient stars for injection site selection
+- **Human Body Constellation**: Body outline created with strategically placed smaller stars
+- **Recommendation System**: Special pulsing and glow animations for recommended injection sites
+- **Hover Labels**: Touch-activated labels for site information and guidance
+- **Seamless Integration**: Diagram blends into component background for immersive experience
+
+**Enhanced Visual Features**:
+- **Gradient Injection Sites**: Each site type has unique gradient colors:
+  - Arms: Pink-purple gradient (`#ff6b9d → #f093fb`) 
+  - Stomach: Green-cyan gradient (`#43e97b → #38f9d7`)
+  - Legs: Blue gradient (`#4facfe → #00f2fe`)
+- **Animation Variety**: Multiple animation patterns including twinkle, scale, pulse, and glow
+- **Interactive Feedback**: Touch responses, selection indicators, and confirmation flows
+- **Medical Information**: Site-specific medical notes and absorption rate information
+
+**Technical Implementation**:
+- **Custom Star Components**: Hand-crafted `AnimatedStar` with configurable size, color, delay, and intensity
+- **Injection Site Stars**: Specialized `InjectionSiteStar` with medical validation and role-based access
+- **Advanced Animations**: Using Expo's `Animated` API with `Easing` functions for natural movement
+- **Modal Presentation**: Full-screen modal with page sheet presentation style
+- **Performance Optimized**: Efficient animation loops with proper cleanup and native driver usage
+
+**Medical Compliance & Safety**:
+- **Role-Based Site Access**: Patients restricted from arm sites, medical professionals have full access
+- **Site Rotation Algorithm**: Intelligent recommendation based on recent injection history
+- **Visual Safety Indicators**: Lock icons and dimmed appearance for restricted sites
+- **Medical Validation**: Real-time validation for insulin units (1-100) and injection timing
+- **Audit Trail Integration**: Complete logging with device identification and medical context
+
+**User Experience Improvements**:
+- **Screen-Based Primary Flow**: Main insulin logging uses dedicated screen for better navigation
+- **Modal for Site Selection**: Starry diagram presented as immersive modal experience
+- **Seamless Integration**: Modal called from main logging screen, returns selection cleanly
+- **Confirmation Flow**: Site selection includes medical information and confirmation step
+- **Progressive Disclosure**: Information revealed as needed, reducing cognitive load
+
+**Files Enhanced/Added**:
+- `app/(protected)/(patient)/insulin-logging.tsx` (new dedicated logging screen)
+- `components/coreComponents/StarryBodyDiagram.tsx` (revolutionary modal component)
+- `assets/styles/protectedStyles/patientStyles/insulinLoggingScreenStyles.ts` (screen styling)
+- `app/(protected)/(patient)/_layout.tsx` (updated navigation routing)
+
+**Architecture Benefits**:
+- **Better UX**: Screen-based primary workflow with modal for specialized interactions
+- **Visual Appeal**: Truly engaging star animations that make medical tasks enjoyable
+- **Medical Standards**: Professional-grade validation and safety features
+- **Scalable Design**: Pattern can be applied to other medical tracking features
+- **Performance**: Optimized animations with proper resource management
+
+This implementation represents a significant advancement in medical app UX design, proving that healthcare applications can be both medically compliant and visually engaging.
+
+### Profile Management & User Experience Improvements (July 2025)
+Implemented comprehensive profile management improvements to enhance user experience and maintain data integrity:
+
+**Profile UI/UX Enhancements**:
+- **Removed Duplicate Profile Card**: Eliminated redundant profile card from patient dashboard since profile access is available via top-right UserMenu
+- **Added AppHeader Component**: Both patient and caretaker dashboards now include AppHeader with UserMenu for consistent navigation
+- **Role Change Prevention**: Users cannot change their role after initial profile creation to maintain data log integrity
+- **Context-Aware Interface**: Profile screen shows different titles and options for initial creation vs. editing
+- **Dashboard Navigation**: Back button returns users to their appropriate role-based dashboard
+
+**Security & Data Integrity Features**:
+- **Role Lock**: After initial profile completion, role changes are prevented (except for admin users)
+- **Admin Override**: Administrators can still modify any user's role for account management
+- **Clear Messaging**: Users see appropriate notices about role restrictions and data integrity
+- **Automatic Routing**: New users are automatically directed to appropriate dashboards after profile completion
+
+**Profile Access Points**:
+- **Top-Right UserMenu**: Primary access through hamburger menu in AppHeader (available on all dashboards)
+- **Edit Profile Option**: Clear "Edit Profile" menu item in UserMenu dropdown
+- **Contextual Back Navigation**: Returns to appropriate dashboard based on user role
+
+**Files Enhanced**:
+- `app/(protected)/userProfile.tsx` (role prevention, back navigation, contextual UI)
+- `app/(protected)/(patient)/index.tsx` (removed duplicate card, added AppHeader)
+- `app/(protected)/(caretaker)/index.tsx` (added AppHeader with UserMenu)
+- `assets/styles/protectedStyles/userProfileStyles.ts` (back button styling)
+- `components/coreComponents/UserMenu.tsx` (existing profile navigation functionality)
 
 ---
 
-## 🔮 Future Architectural Considerations
+## 📚 Documentation Structure
 
-### Planned Enhancements
-- **Route Preloading**: Preload authorized routes based on user role
-- **Navigation Caching**: Cache navigation decisions for better performance
-- **Deep Link Handling**: Handle deep links through the landing page
-- **Progressive Loading**: Show partial content while loading complete dashboard
+The project maintains comprehensive documentation across multiple files:
 
-### Scalability Considerations
-- **Module Federation**: Consider micro-frontend approach for large teams
-- **State Management**: Evaluate Redux/Zustand for complex state scenarios
-- **Performance Monitoring**: Implement comprehensive performance tracking
-- **Accessibility**: Enhanced accessibility features for medical compliance
+### Core Documentation Files
+- **`ARCHITECTURE.md`** (this file): High-level architecture overview and principles
+- **`PROJECT_STRUCTURE.md`**: Detailed file-by-file breakdown and code explanations
+- **`BUGS_AND_FIXES.md`**: Comprehensive bug log with solutions and prevention strategies
+- **`REFACTORING_SUMMARY.md`**: Summary of major architectural changes and improvements
 
-### Security Enhancements
-- **Enhanced Audit Logging**: More detailed security event logging
-- **Session Management**: Advanced session handling and timeout policies
-- **Biometric Authentication**: Optional biometric login for enhanced security
-- **Data Encryption**: Enhanced encryption for sensitive medical data
+### Documentation Philosophy
+- **Living Documentation**: Updated with every architectural change
+- **Comprehensive Coverage**: Every file and pattern explained
+- **Learning Resource**: Detailed explanations for educational purposes
+- **Audit Trail**: Complete history of decisions and changes
 
----
+## Enhanced Patient Reminder System (Comprehensive Implementation July 2025)
+Implemented a comprehensive, customizable reminder system for diabetes patients with local notifications, smart scheduling, and extensive customization options. This medical-grade feature provides patients with flexible meal, glucose, and insulin reminders with professional notification management.
 
-## 🔄 State Management Architecture
+**Architecture Features**:
+- **Multi-Type Reminders**: Meal reminders (standard + custom), glucose monitoring, insulin administration
+- **Smart Scheduling**: Automatic glucose reminders 2 hours after each meal (including custom meals)
+- **Local Notifications**: Reliable, private notifications using Expo Notifications with safe wrapper architecture
+- **Firestore Integration**: Persistent settings storage with proper security rules and user ownership
+- **Custom Meal Support**: Unlimited custom meal reminders with emoji selection and flexible timing
 
-### Authentication State Flow
-The application uses a centralized authentication state management system that ensures consistent user experience across all components:
+**Technical Implementation**:
+- **Notification Architecture**: Safe wrapper utility (`notificationUtils.ts`) prevents native module errors
+- **Time Management**: Cross-platform time picker with iOS/Android specific handling
+- **Settings Persistence**: Firestore-based storage with merge operations for document creation
+- **Permission Handling**: Comprehensive notification permission management with user guidance
+- **Scheduling Engine**: Daily recurring notifications with unique identifiers for easy management
 
-- **Context-Based State**: React Context provides global authentication state
-- **Optimistic Updates**: UI updates immediately with optimistic state changes
-- **Error Boundaries**: Graceful error handling with user-friendly fallbacks
-- **Loading States**: Consistent loading indicators throughout the application
+**User Experience Features**:
+- **Intuitive Time Adjustment**: Tap any meal time to modify with native time picker
+- **Custom Meal Creation**: Add unlimited custom meals with name, emoji, and time customization
+- **Visual Feedback**: Professional modal interface with emoji selection and validation
+- **Smart Defaults**: Sensible default times (8 AM breakfast, 12:30 PM lunch, 6 PM dinner)
+- **Removal Management**: Confirmation dialogs for custom meal removal with clear user intent
 
-### Navigation State Management
-Navigation state is managed through a centralized system that prevents race conditions and ensures security:
+**Security & Compliance**:
+- **User Ownership**: Firestore rules ensure users can only access their own reminder settings
+- **Data Privacy**: All reminder data stored privately, never shared between users
+- **Safe Notifications**: Wrapper architecture prevents crashes when notification services unavailable
+- **Error Handling**: Comprehensive error management with user-friendly feedback
 
-- **Protected Routes**: Authentication guards at the layout level
-- **Role-Based Navigation**: Dynamic routing based on user roles and permissions
-- **Deep Link Handling**: Secure deep link processing through the landing page
-- **State Persistence**: Navigation state persists across app restarts
+**Files Implemented**:
+- `app/(protected)/(patient)/reminders.tsx` (comprehensive reminder management screen)
+- `utils/notificationUtils.ts` (safe notification wrapper with error prevention)
+- `firestore.rules` (enhanced with userProfiles collection security rules)
+- `assets/styles/protectedStyles/patientStyles/patientDashboardStyles.ts` (modal and reminder styles)
 
-### Form State Management
-Forms throughout the application follow consistent patterns for state management:
+**Technical Improvements**:
+- **Platform Compatibility**: iOS spinner and Android default time picker displays
+- **Memory Management**: Proper state cleanup and notification cancellation
+- **Type Safety**: Full TypeScript implementation with comprehensive interfaces
+- **Error Recovery**: Graceful handling of permission denials and service unavailability
+- **Maintainable Code**: Clean separation of concerns and modular architecture
 
-- **Controlled Components**: All form inputs are controlled components
-- **Validation States**: Real-time validation with clear error messaging
-- **Submission States**: Loading states and success/error feedback
-- **Data Persistence**: Form data persistence for improved user experience
-
-## 🎨 UI/UX Design Patterns
-
-### Design System
-The application follows a consistent design system that ensures professional appearance:
-
-- **Component Library**: Reusable UI components with consistent styling
-- **Theme Management**: Centralized color and typography management
-- **Responsive Design**: Optimized layouts for different screen sizes
-- **Accessibility**: WCAG-compliant design with proper contrast and focus management
-
-### User Experience Patterns
-User experience is prioritized through established patterns:
-
-- **Progressive Disclosure**: Information revealed as needed
-- **Loading States**: Clear indicators for all asynchronous operations
-- **Error Handling**: User-friendly error messages with actionable guidance
-- **Feedback Systems**: Immediate feedback for user actions
-
-### Medical UI Compliance
-The interface follows medical application standards:
-
-- **Professional Appearance**: Clean, medical-grade interface design
-- **Data Visualization**: Clear presentation of medical information
-- **Privacy Indicators**: Visual cues for sensitive information
-- **Accessibility**: Enhanced accessibility for medical compliance
-
-## 🔧 Development Patterns
-
-### Code Organization
-The codebase follows established patterns for maintainability:
-
-- **Feature-Based Structure**: Related code grouped by functionality
-- **Separation of Concerns**: Clear separation between UI, business logic, and data
-- **Reusable Components**: Modular components with clear interfaces
-- **Type Safety**: Comprehensive TypeScript throughout the application
-
-### Testing Patterns
-Testing is integrated throughout the development process:
-
-- **Unit Testing**: Individual component and function testing
-- **Integration Testing**: Cross-component interaction testing
-- **End-to-End Testing**: Complete user workflow testing
-- **Security Testing**: Authentication and authorization testing
-
-### Performance Patterns
-Performance is optimized through established patterns:
-
-- **Code Splitting**: Lazy loading of components and routes
-- **Memoization**: Strategic use of React.memo and useMemo
-- **Image Optimization**: Efficient image loading and caching
-- **Bundle Optimization**: Minimal bundle size with tree shaking
-
-> **Note**: Detailed implementation examples and troubleshooting information are maintained in internal development documentation.
-
-## 🔗 Integration Patterns
-
-### Service Layer Architecture
-The application follows a clean service layer architecture that separates concerns and enables maintainable, testable code:
-
-- **Authentication Service**: Centralized user authentication and session management
-- **Database Service**: Abstracted data access with consistent error handling
-- **Logging Service**: Comprehensive audit trail for compliance and debugging
-- **Device Service**: Cross-platform device identification and information capture
-- **Navigation Service**: Centralized routing logic with security controls
-
-### Cross-Platform Compatibility
-Built with React Native and Expo, the application provides:
-
-- **Universal Codebase**: Single codebase for iOS, Android, and Web
-- **Platform-Specific Optimizations**: Tailored experiences for each platform
-- **Native Feature Integration**: Access to device-specific capabilities
-- **Consistent User Experience**: Unified design system across all platforms
-
-### Security Integration
-Security is integrated at every layer:
-
-- **Firebase Authentication**: Industry-standard authentication with email verification
-- **Firestore Security Rules**: Database-level access controls and validation
-- **Role-Based Access Control**: Granular permissions based on user roles
-- **Audit Logging**: Comprehensive activity tracking for compliance
-- **Device Fingerprinting**: Enhanced security through device identification
-
-### Medical Compliance Framework
-The architecture supports healthcare data requirements:
-
-- **Audit Trail Compliance**: Immutable logging of all user actions
-- **Data Access Controls**: Strict role-based and relationship-based permissions
-- **Privacy Protection**: Secure handling of sensitive medical information
-- **Regulatory Compliance**: Framework supports HIPAA-style requirements
-
-## 🚀 Future Enhancements
-
-### Planned Features
-- **Real-time Data Synchronization**: Live updates across connected devices
-- **Advanced Analytics**: Health trend analysis and insights
-- **Integration APIs**: Third-party medical device and service integration
-- **Offline Capability**: Enhanced offline functionality with sync
-- **Advanced Security**: Multi-factor authentication and biometric support
-
-### Scalability Considerations
-- **Microservices Architecture**: Potential migration to service-based architecture
-- **Edge Computing**: Reducing latency through distributed processing
-- **Advanced Caching**: Intelligent data caching for improved performance
-- **Load Balancing**: Horizontal scaling for high availability
-
-### Technical Debt Management
-- **Code Quality**: Continuous refactoring and improvement
-- **Testing Coverage**: Comprehensive automated testing suite
-- **Documentation**: Maintaining up-to-date technical documentation
-- **Performance Optimization**: Ongoing performance monitoring and tuning
-
-> **Note**: Detailed implementation plans and technical specifications are maintained in internal development documentation.
-
-## 🔐 Security Architecture
-
-### Authentication Layers
-1. **Firebase Authentication**: Secure session management and email verification
-2. **Firestore Security Rules**: Database-level access control and validation  
-3. **Application Logic**: Additional client-side security checks
-4. **Audit Logging**: Comprehensive action tracking with device identification
-
-### Data Access Control Matrix
-
-| User Type | Own Data | Patient Data | System Data | Audit Logs |
-|-----------|----------|--------------|-------------|------------|
-| **Patient** | ✅ Full | ❌ None | ❌ None | ✅ Own Only |
-| **Doctor** | ✅ Full | ✅ Linked Only | ❌ None | ✅ Own Only |
-| **Caretaker** | ✅ Full | ✅ Linked Only | ❌ None | ✅ Own Only |
-| **Admin** | ✅ Full | ✅ All | ✅ Full | ✅ All |
-| **Unverified** | ❌ None | ❌ None | ❌ None | ❌ None |
-
-### Relationship-Based Access
-```javascript
-// Doctor-Patient Relationship Requirements
-1. Valid doctor role
-2. Relationship document exists 
-3. Relationship status: 'accepted'
-4. Patient must have approved the relationship
-
-// Caretaker-Patient Relationship Requirements  
-1. Valid caretaker role
-2. Relationship document exists 
-3. Relationship status: 'accepted'
-4. Patient must have approved the relationship
-```
-
-## �️ Data Architecture
-
-### Database Design Principles
-- **Medical-Grade Privacy**: HIPAA-style data protection and access controls
-- **Relationship-Based Access**: Professional relationships enable data sharing
-- **Immutable Audit Trail**: Complete logging of all data access and modifications
-- **Role-Based Permissions**: Different access levels for patients, doctors, caretakers, and admins
-- **Secure by Default**: All data protected unless explicitly authorized
-
-### Key Collections
-- **User Profiles**: Core user information and role assignments
-- **Professional Relationships**: Verified doctor-patient and caretaker-patient connections
-- **Audit Logs**: Comprehensive activity tracking for compliance
-- **Credential Verification**: Doctor license and education verification system
-- **Invitation System**: Secure patient invitation and relationship establishment
-
-> **Note**: Detailed database schemas and security rules are maintained in internal documentation for security purposes.
-
-## 🛠️ Development Guidelines
-
-### Code Organization Principles
-- **Feature-Based Structure**: Group related functionality together
-- **Type Safety First**: Comprehensive TypeScript throughout
-- **Security by Design**: Authentication and authorization at every layer
-- **Audit Everything**: All user actions must be logged
-- **Mobile-First**: Optimized for mobile with web support
-
-### File Naming Conventions
-- **Components**: PascalCase (e.g., `UserProfile.tsx`)
-- **Utilities**: camelCase (e.g., `deviceInfo.ts`)
-- **Styles**: kebab-case (e.g., `signin-styles.ts`)
-- **Routes**: Expo Router format (e.g., `(auth)/index.tsx`)
-
-### Security Best Practices
-- **Never trust client-side**: All security enforced at database level
-- **Principle of least privilege**: Minimal permissions by default
-- **Audit trail compliance**: Every action logged with context
-- **Input validation**: Client and server-side validation
-- **Error handling**: Secure error messages without data exposure
-
----
-
-## 🎊 Current Architecture Status
-
-### ✅ Landing Page Architecture (2025-07-03)
-The Diabeto app successfully implements a robust landing page architecture that provides:
-
-- **Secure Navigation**: Centralized routing logic that prevents race conditions
-- **Enhanced User Experience**: Clean navigation flow without inappropriate alerts
-- **Medical-Grade Security**: Only authorized components mount and execute
-- **Maintainable Codebase**: Clear separation of concerns and single source of truth
-- **Comprehensive Documentation**: Well-documented patterns for future development
-
-### ✅ Documentation Organization
-- **Public Architecture Documentation**: High-level patterns and principles in ARCHITECTURE.md
-- **Comprehensive Bug Tracking**: Detailed resolution history in BUGS_AND_FIXES.md
-- **Private Internal Documentation**: Sensitive implementation details kept secure
-- **Security-First Approach**: Medical-grade privacy and compliance standards
-
-The application now provides a secure, well-documented foundation for healthcare data management with proper architectural patterns for scalable development.
-
----
-
-*Last Updated: July 3, 2025*
+**User Impact**:
+- **Medication Adherence**: Timely reminders improve diabetes management compliance
+- **Lifestyle Integration**: Custom meals accommodate diverse eating schedules and cultural preferences
+- **Glucose Monitoring**: Automated post-meal reminders ensure consistent blood sugar tracking
+- **Professional Care**: Reliable insulin reminders support complex medication regimens

@@ -20,6 +20,39 @@ export default function PatientLayout() {
                     headerStyle: { backgroundColor: '#3b5998' },
                 }}
             />
+            
+            {/* Insulin Logging Screen */}
+            <Stack.Screen
+                name="insulin-logging" // Corresponds to app/(protected)/(patient)/insulin-logging.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
+                }}
+            />
+            
+            {/* Glucose Monitoring Screen */}
+            <Stack.Screen
+                name="glucose-monitoring" // Corresponds to app/(protected)/(patient)/glucose-monitoring.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
+                }}
+            />
+            
+            {/* Reminders Screen */}
+            <Stack.Screen
+                name="reminders" // Corresponds to app/(protected)/(patient)/reminders.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
+                }}
+            />
+            
+            {/* Patient Invitations Screen */}
+            <Stack.Screen
+                name="patientInvitationsScreen" // Corresponds to app/(protected)/(patient)/patientInvitationsScreen.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
+                }}
+            />
+            
             {/* Add other patient-specific screens here */}
             {/* Example: <Stack.Screen name="my-caretakers" options={{ title: 'My Caretakers' }} /> */}
         </Stack>
