@@ -41,4 +41,19 @@ export default StyleSheet.create({
         marginBottom: 10,
         fontStyle: 'italic',
     },
+    backButton: {
+        alignSelf: 'flex-start',
+        marginBottom: 20,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.3)',
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
 });

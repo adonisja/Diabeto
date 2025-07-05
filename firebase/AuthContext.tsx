@@ -18,6 +18,11 @@ export interface UserProfile {
   gender?: 'Male' | 'Female' | 'Other';
   address?: string;
   phone?: string;
+  // Prescribed insulin dosages (set by doctor for patients)
+  prescribedShortActingDosage?: number;
+  prescribedLongActingDosage?: number;
+  prescribingDoctorId?: string; // Doctor who prescribed the dosages
+  dosageUpdatedAt?: any; // When dosages were last updated
   // Added for consistent rule checks and initial profile creation
   createdAt?: any; // Firestore Timestamp
   updatedAt?: any; // Firestore Timestamp

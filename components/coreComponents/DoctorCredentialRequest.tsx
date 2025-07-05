@@ -1,11 +1,6 @@
 // components/coreComponents/DoctorCredentialRequest.tsx
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    Alert,
+import { View, Text, TextInput, TouchableOpacity, Alert,
     StyleSheet,
     ScrollView,
     ActivityIndicator

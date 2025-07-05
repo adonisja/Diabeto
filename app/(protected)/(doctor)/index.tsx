@@ -25,7 +25,7 @@ export default function DoctorDashboard() {
     };
 
     const handlePatientManagement = () => {
-        Alert.alert("Patient Management", "Patient management features coming soon!");
+        router.push('/(protected)/(doctor)/patient-dosages');
     };
 
     const handleMedicalRecords = () => {

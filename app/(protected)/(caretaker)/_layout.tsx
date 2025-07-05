@@ -10,7 +10,7 @@ export default function CaretakerLayout() {
                     headerShown: false, // Using custom AppHeader instead
                 }}
             />
-            {/* Caretaker's invite patient screen (you just created this!) */}
+            {/* Caretaker's invite patient screen */}
             <Stack.Screen
                 name="invite-patient" // Corresponds to app/(protected)/caretaker/invite-patient.tsx
                 options={{
@@ -18,6 +18,13 @@ export default function CaretakerLayout() {
                     headerShown: true,
                     headerTintColor: '#fff',
                     headerStyle: { backgroundColor: '#3b5998' },
+                }}
+            />
+            {/* Caretaker's insulin logging screen */}
+            <Stack.Screen
+                name="insulin-logging" // Corresponds to app/(protected)/(caretaker)/insulin-logging.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
                 }}
             />
             {/* Add other caretaker-specific screens here */}

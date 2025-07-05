@@ -34,7 +34,34 @@ export default function UserProfileScreen() {
         }
     }, [userProfile, loadingProfile]); // Re-run when userProfile or loadingProfile changes
 
+    // Check if this is initial profile creation or editing existing profile
+    const isInitialCreation = !userProfile?.profileCompleted;
+    const isAdmin = userProfile?.role === 'admin';
+
     // Navigation based on authentication state is handled by app/_layout.tsx (the centralized gatekeeper).
+
+    // Handle back navigation for existing users
+    const handleBack = () => {
+        if (!isInitialCreation) {
+            // Navigate back to appropriate dashboard based on role
+            switch (userProfile?.role) {
+                case 'patient':
+                    router.replace('/(protected)/(patient)');
+                    break;
+                case 'caretaker':
+                    router.replace('/(protected)/(caretaker)');
+                    break;
+                case 'doctor':
+                    router.replace('/(protected)/(doctor)');
+                    break;
+                case 'admin':
+                    router.replace('/(protected)/(admin)');
+                    break;
+                default:
+                    router.replace('/(protected)');
+            }
+        }
+    };
 
     // 3. `handleSaveProfile` Function: Logic to update user profile in Firestore
     const handleSaveProfile = async () => {
@@ -84,7 +111,7 @@ export default function UserProfileScreen() {
                 } // 6. LogService: Update details
             );
 
-            Alert.alert("Success", "Your profile has been updated!");
+            Alert.alert("Success", isInitialCreation ? "Your profile has been created!" : "Your profile has been updated!");
             // Data Flow: When `profileCompleted: true` is updated in Firestore,
             // `AuthContext`'s `onSnapshot` listener detects this change.
             // `AuthContext` then updates its `userProfile` state.
@@ -138,8 +165,8 @@ export default function UserProfileScreen() {
         >
         <View style={userProfileStyles.outerContainer}>
             <AppHeader 
-                title="Complete Your Profile"
-                subtitle="Set up your account information"
+                title={isInitialCreation ? "Complete Your Profile" : "Edit Profile"}
+                subtitle={isInitialCreation ? "Set up your account information" : "Update your account information"}
                 gradient={['#4c669f', '#3b5998', '#192f6a']}
             />
             
@@ -150,6 +177,16 @@ export default function UserProfileScreen() {
                 
                 <View style={commonAuthStyles.container}>
                     <Stack.Screen options={{ headerShown: false }} /> 
+
+                    {/* Back button for existing users */}
+                    {!isInitialCreation && (
+                        <TouchableOpacity
+                            style={userProfileStyles.backButton}
+                            onPress={handleBack}
+                        >
+                            <Text style={userProfileStyles.backButtonText}>← Back to Dashboard</Text>
+                        </TouchableOpacity>
+                    )}
 
                     {errorMsg ? <Text style={commonAuthStyles.errorText}>{errorMsg}</Text> : null}
 
@@ -172,15 +209,25 @@ export default function UserProfileScreen() {
 
                     <Text style={commonAuthStyles.label}>Select Your Role:</Text>
                     <View style={userProfileStyles.roleSelectionContainer}> 
-                        {/* 12. Role Selection: New users can only choose patient/caretaker, admin can assign any role */}
-                        {(userProfile?.role === 'admin' ? 
-                            ['patient', 'caretaker', 'doctor', 'admin'] : 
-                            ['patient', 'caretaker']
+                        {/* Role Selection: Prevent changes after initial creation unless user is admin */}
+                        {(isInitialCreation || isAdmin ? 
+                            (isAdmin ? ['patient', 'caretaker', 'doctor', 'admin'] : ['patient', 'caretaker']) :
+                            [userProfile?.role || 'patient'] // Show only current role for existing non-admin users
                         ).map(r => ( 
                             <TouchableOpacity
                                 key={r} 
-                                style={[userProfileStyles.roleButton, role === r && userProfileStyles.roleButtonActive]} 
-                                onPress={() => setRole(r as 'patient' | 'caretaker' | 'doctor' | 'admin')} 
+                                style={[
+                                    userProfileStyles.roleButton, 
+                                    role === r && userProfileStyles.roleButtonActive,
+                                    (!isInitialCreation && !isAdmin && r !== userProfile?.role) && { opacity: 0.5 } // Disabled appearance
+                                ]} 
+                                onPress={() => {
+                                    // Only allow role changes during initial creation or if user is admin
+                                    if (isInitialCreation || isAdmin) {
+                                        setRole(r as 'patient' | 'caretaker' | 'doctor' | 'admin');
+                                    }
+                                }}
+                                disabled={!isInitialCreation && !isAdmin && r !== userProfile?.role}
                             >
                                 <Text style={[userProfileStyles.roleButtonText, role === r && userProfileStyles.roleButtonTextActive]}>
                                     {r.charAt(0).toUpperCase() + r.slice(1)} 
@@ -192,14 +239,18 @@ export default function UserProfileScreen() {
                     
                     {/* Role Selection Notice */}
                     <Text style={userProfileStyles.securityNotice}>
-                        {userProfile?.role === 'admin' ? 
+                        {isAdmin ? 
                             '⚠️ Admin Access: You can assign any role including admin.' :
-                            'ℹ️ New users can register as Patient or Caretaker. Doctor role requires credential verification by an administrator.'
+                            isInitialCreation ?
+                                'ℹ️ New users can register as Patient or Caretaker. Doctor role requires credential verification by an administrator.' :
+                                '🔒 Role cannot be changed after initial setup to maintain data integrity. Contact an administrator if you need role changes.'
                         }
                     </Text>
 
                     <TouchableOpacity style={commonAuthStyles.button} onPress={handleSaveProfile} disabled={isSaving}>
-                        <Text style={commonAuthStyles.buttonText}>{isSaving ? 'Saving...' : 'Save Profile'}</Text>
+                        <Text style={commonAuthStyles.buttonText}>
+                            {isSaving ? 'Saving...' : (isInitialCreation ? 'Complete Profile' : 'Save Changes')}
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </LinearGradient>

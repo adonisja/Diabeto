@@ -32,6 +32,12 @@ export default function DoctorLayout() {
                     headerShown: false, // Using custom AppHeader instead
                 }}
             />
+            <Stack.Screen
+                name="patient-dosages" // Corresponds to app/(protected)/(doctor)/patient-dosages.tsx
+                options={{
+                    headerShown: false, // Using custom header in the component
+                }}
+            />
             {/* Future Doctor Screens will be added here as Stack.Screen components */}
             {/* Example:
             <Stack.Screen
