@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../firebase/AuthContext';
 import { notificationService } from '../../../utils/notificationUtils';
+import { logAction } from '../../../firebase/LogService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../../firebase/firebaseConfig';
@@ -88,6 +89,22 @@ export default function RemindersScreen() {
 
     const requestNotificationPermissions = async () => {
         try {
+            // Log permission request attempt
+            if (user) {
+                await logAction(
+                    user.uid,
+                    user.email?.split('@')[0] || 'Unknown',
+                    user.email || '',
+                    'patient',
+                    'NOTIFICATION_PERMISSION_REQUEST',
+                    'success',
+                    {
+                        platform: Platform.OS,
+                        timestamp: new Date().toISOString()
+                    }
+                );
+            }
+            
             const { status: existingStatus } = await notificationService.getPermissionsAsync();
             let finalStatus = existingStatus;
             
@@ -97,6 +114,23 @@ export default function RemindersScreen() {
             }
             
             if (finalStatus !== 'granted') {
+                // Log permission denial
+                if (user) {
+                    await logAction(
+                        user.uid,
+                        user.email?.split('@')[0] || 'Unknown',
+                        user.email || '',
+                        'patient',
+                        'NOTIFICATION_PERMISSION_DENIED',
+                        'failure',
+                        {
+                            status: finalStatus,
+                            platform: Platform.OS,
+                            timestamp: new Date().toISOString()
+                        }
+                    );
+                }
+                
                 Alert.alert(
                     'Permission Required',
                     'Please enable notifications in Settings to receive reminders.',
@@ -105,9 +139,44 @@ export default function RemindersScreen() {
                 return;
             }
             
+            // Log successful permission grant
+            if (user) {
+                await logAction(
+                    user.uid,
+                    user.email?.split('@')[0] || 'Unknown',
+                    user.email || '',
+                    'patient',
+                    'NOTIFICATION_PERMISSION_GRANTED',
+                    'success',
+                    {
+                        status: finalStatus,
+                        platform: Platform.OS,
+                        timestamp: new Date().toISOString()
+                    }
+                );
+            }
+            
             setNotificationPermission(true);
         } catch (error) {
             console.error('Error requesting notification permissions:', error);
+            
+            // Log permission request error
+            if (user) {
+                await logAction(
+                    user.uid,
+                    user.email?.split('@')[0] || 'Unknown',
+                    user.email || '',
+                    'patient',
+                    'NOTIFICATION_PERMISSION_ERROR',
+                    'failure',
+                    {
+                        error: error instanceof Error ? error.message : 'Unknown error',
+                        platform: Platform.OS,
+                        timestamp: new Date().toISOString()
+                    }
+                );
+            }
+            
             Alert.alert('Error', 'Failed to request notification permissions.');
             setNotificationPermission(false);
         }
@@ -156,6 +225,23 @@ export default function RemindersScreen() {
         if (!user) return;
         
         try {
+            // Log reminder settings save attempt
+            await logAction(
+                user.uid,
+                user.email?.split('@')[0] || 'Unknown',
+                user.email || '',
+                'patient',
+                'REMINDER_SETTINGS_SAVE_ATTEMPT',
+                'success',
+                {
+                    mealRemindersEnabled: settings.mealReminders.enabled,
+                    glucoseRemindersEnabled: settings.glucoseReminders.enabled,
+                    insulinRemindersEnabled: settings.insulinReminders.enabled,
+                    customMealsCount: settings.mealReminders.customMeals.length,
+                    timestamp: new Date().toISOString()
+                }
+            );
+            
             const docRef = doc(db, 'userProfiles', user.uid);
             
             // First, try to create/update the document
@@ -170,12 +256,42 @@ export default function RemindersScreen() {
             // Schedule new notifications
             await scheduleNotifications();
             
+            // Log successful reminder settings save
+            await logAction(
+                user.uid,
+                user.email?.split('@')[0] || 'Unknown',
+                user.email || '',
+                'patient',
+                'REMINDER_SETTINGS_SAVED',
+                'success',
+                {
+                    settings: settings,
+                    notificationsScheduled: true,
+                    timestamp: new Date().toISOString()
+                }
+            );
+            
             Alert.alert('Success', 'Reminder settings saved successfully!');
         } catch (error) {
             console.error('Error saving reminder settings:', error);
             if (error instanceof Error) {
                 console.error('Error details:', error.message);
             }
+            
+            // Log reminder settings save failure
+            await logAction(
+                user.uid,
+                user.email?.split('@')[0] || 'Unknown',
+                user.email || '',
+                'patient',
+                'REMINDER_SETTINGS_SAVE_FAILED',
+                'failure',
+                {
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    timestamp: new Date().toISOString()
+                }
+            );
+            
             Alert.alert('Error', 'Failed to save reminder settings.');
         }
     };

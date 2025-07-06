@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../../firebase/AuthContext';
 import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../firebase/firebaseConfig';
+import { logAction } from '../../../firebase/LogService';
 import { doctorDashboardStyles } from '../../../assets/styles/protectedStyles/doctorStyles/doctorDashboardStyles';
 
 interface Patient {
@@ -100,6 +101,27 @@ export default function PatientDosagesScreen() {
                 dosageUpdatedAt: serverTimestamp()
             });
 
+            // Log the dosage update for medical audit trail
+            const targetPatient = patients.find(p => p.uid === patientId);
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'doctor',
+                'PATIENT_DOSAGE_UPDATED',
+                'success',
+                {
+                    targetPatientId: patientId,
+                    targetPatientName: targetPatient ? `${targetPatient.firstName} ${targetPatient.lastName}` : 'Unknown',
+                    targetPatientEmail: targetPatient?.email,
+                    previousShortActingDosage: targetPatient?.prescribedShortActingDosage,
+                    previousLongActingDosage: targetPatient?.prescribedLongActingDosage,
+                    newShortActingDosage: shortActingNum,
+                    newLongActingDosage: longActingNum,
+                    entrySource: 'Doctor Patient Dosages Screen'
+                }
+            );
+
             // Update local state
             setPatients(prev => prev.map(patient => 
                 patient.uid === patientId 
@@ -110,6 +132,24 @@ export default function PatientDosagesScreen() {
             Alert.alert('Success', 'Patient dosages updated successfully.');
         } catch (error) {
             console.error('Error updating dosages:', error);
+            
+            // Log the dosage update failure
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'doctor',
+                'PATIENT_DOSAGE_UPDATE_FAILED',
+                'failure',
+                {
+                    targetPatientId: patientId,
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    attemptedShortActingDosage: shortActingNum,
+                    attemptedLongActingDosage: longActingNum,
+                    entrySource: 'Doctor Patient Dosages Screen'
+                }
+            );
+            
             Alert.alert('Error', 'Failed to update patient dosages.');
         } finally {
             setSaving(null);

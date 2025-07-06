@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../../firebase/AuthContext';
+import { logAction } from '../../../firebase/LogService';
 import GlucoseEntryForm from '../../../components/coreComponents/GlucoseEntryForm';
 import GlucoseReadingsViewer from '../../../components/coreComponents/GlucoseReadingsViewer';
 import CGMIntegration from '../../../components/coreComponents/CGMIntegration';
@@ -20,11 +21,46 @@ import glucoseMonitoringScreenStyles from '../../../assets/styles/protectedStyle
 
 export default function GlucoseMonitoringScreen() {
     const router = useRouter();
-    const { userProfile } = useAuth();
+    const { user, userProfile } = useAuth();
     const [activeView, setActiveView] = useState<'hub' | 'entry' | 'history' | 'cgm'>('hub');
 
-    const handleViewChange = (view: 'hub' | 'entry' | 'history' | 'cgm') => {
+    // Log screen access for medical audit trail
+    React.useEffect(() => {
+        const logScreenAccess = async () => {
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'GLUCOSE_MONITORING_SCREEN_ACCESSED',
+                'success',
+                {
+                    screenName: 'glucose-monitoring',
+                    entrySource: 'Patient Navigation'
+                }
+            );
+        };
+
+        logScreenAccess();
+    }, [user, userProfile]);
+
+    const handleViewChange = async (view: 'hub' | 'entry' | 'history' | 'cgm') => {
         setActiveView(view);
+        
+        // Log navigation within glucose monitoring
+        await logAction(
+            user?.uid || '',
+            userProfile?.username || '',
+            user?.email || '',
+            userProfile?.role || 'patient',
+            'GLUCOSE_MONITORING_VIEW_CHANGED',
+            'success',
+            {
+                previousView: activeView,
+                newView: view,
+                screenName: 'glucose-monitoring'
+            }
+        );
     };
 
     const handleEntrySuccess = () => {

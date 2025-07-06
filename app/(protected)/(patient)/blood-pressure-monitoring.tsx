@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../firebase/AuthContext';
+import { logAction } from '../../../firebase/LogService';
 import BloodPressureEntryForm from '../../../components/coreComponents/BloodPressureEntryForm';
 import BloodPressureReadingsViewer from '../../../components/coreComponents/BloodPressureReadingsViewer';
 import BloodPressureDeviceIntegration from '../../../components/coreComponents/BloodPressureDeviceIntegration';
@@ -19,11 +20,46 @@ import bloodPressureMonitoringScreenStyles from '../../../assets/styles/protecte
 
 export default function BloodPressureMonitoringScreen() {
     const router = useRouter();
-    const { userProfile } = useAuth();
+    const { user, userProfile } = useAuth();
     const [activeView, setActiveView] = useState<'hub' | 'entry' | 'history' | 'devices'>('hub');
 
-    const handleViewChange = (view: 'hub' | 'entry' | 'history' | 'devices') => {
+    // Log screen access for medical audit trail
+    React.useEffect(() => {
+        const logScreenAccess = async () => {
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'BLOOD_PRESSURE_MONITORING_SCREEN_ACCESSED',
+                'success',
+                {
+                    screenName: 'blood-pressure-monitoring',
+                    entrySource: 'Patient Navigation'
+                }
+            );
+        };
+
+        logScreenAccess();
+    }, [user, userProfile]);
+
+    const handleViewChange = async (view: 'hub' | 'entry' | 'history' | 'devices') => {
         setActiveView(view);
+        
+        // Log navigation within blood pressure monitoring
+        await logAction(
+            user?.uid || '',
+            userProfile?.username || '',
+            user?.email || '',
+            userProfile?.role || 'patient',
+            'BLOOD_PRESSURE_MONITORING_VIEW_CHANGED',
+            'success',
+            {
+                previousView: activeView,
+                newView: view,
+                screenName: 'blood-pressure-monitoring'
+            }
+        );
     };
 
     const handleEntrySuccess = () => {

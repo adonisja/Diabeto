@@ -12,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../firebase/AuthContext';
+import { logAction } from '../../../firebase/LogService';
 import HeartRateEntryForm from '../../../components/coreComponents/HeartRateEntryForm';
 import HeartRateReadingsViewer from '../../../components/coreComponents/HeartRateReadingsViewer';
 import HeartRateDeviceIntegration from '../../../components/coreComponents/HeartRateDeviceIntegration';
@@ -19,11 +20,46 @@ import heartRateMonitoringScreenStyles from '../../../assets/styles/protectedSty
 
 export default function HeartRateMonitoringScreen() {
     const router = useRouter();
-    const { userProfile } = useAuth();
+    const { user, userProfile } = useAuth();
     const [activeView, setActiveView] = useState<'hub' | 'entry' | 'history' | 'devices'>('hub');
 
-    const handleViewChange = (view: 'hub' | 'entry' | 'history' | 'devices') => {
+    // Log screen access for medical audit trail
+    React.useEffect(() => {
+        const logScreenAccess = async () => {
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'HEART_RATE_MONITORING_SCREEN_ACCESSED',
+                'success',
+                {
+                    screenName: 'heart-rate-monitoring',
+                    entrySource: 'Patient Navigation'
+                }
+            );
+        };
+
+        logScreenAccess();
+    }, [user, userProfile]);
+
+    const handleViewChange = async (view: 'hub' | 'entry' | 'history' | 'devices') => {
         setActiveView(view);
+        
+        // Log navigation within heart rate monitoring
+        await logAction(
+            user?.uid || '',
+            userProfile?.username || '',
+            user?.email || '',
+            userProfile?.role || 'patient',
+            'HEART_RATE_MONITORING_VIEW_CHANGED',
+            'success',
+            {
+                previousView: activeView,
+                newView: view,
+                screenName: 'heart-rate-monitoring'
+            }
+        );
     };
 
     const handleEntrySuccess = () => {

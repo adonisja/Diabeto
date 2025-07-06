@@ -20,6 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../../firebase/AuthContext';
 import { collection, addDoc, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../../../firebase/firebaseConfig';
+import { logAction } from '../../../firebase/LogService';
 import StarryBodyDiagram from '../../../components/coreComponents/StarryBodyDiagram';
 import insulinLoggingScreenStyles from '../../../assets/styles/protectedStyles/patientStyles/insulinLoggingScreenStyles';
 
@@ -211,7 +212,7 @@ export default function InsulinLoggingScreen() {
         if (isDosageAltered && !notes.trim()) {
             Alert.alert(
                 'Explanation Required', 
-                `You've changed the dosage from the prescribed ${prescribedDosage} units to ${unitsNum} units. Please explain the reason for this change in the notes section.`
+                `You've changed the dosage from the prescribed ${prescribedDosage} to ${unitsNum} units. Please explain the reason for this change in the notes section.`
             );
             return false;
         }
@@ -252,6 +253,28 @@ export default function InsulinLoggingScreen() {
 
             await addDoc(collection(db, 'insulinRecords'), insulinRecord);
             
+            // Log the insulin entry for medical audit trail
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'INSULIN_RECORD_CREATED',
+                'success',
+                {
+                    insulinType,
+                    mealTiming,
+                    injectionSite: selectedSite,
+                    injectionSubSite: selectedSubSite,
+                    units: parseFloat(units),
+                    prescribedDosage,
+                    isDosageAltered,
+                    prescribingDoctorId: userProfile?.prescribingDoctorId,
+                    entrySource: 'Patient Insulin Logging Screen',
+                    platform: Platform.OS
+                }
+            );
+            
             Alert.alert(
                 '🎉 Success!', 
                 'Your insulin injection has been logged successfully!',
@@ -274,6 +297,24 @@ export default function InsulinLoggingScreen() {
             );
         } catch (error) {
             console.error('Error saving insulin record:', error);
+            
+            // Log the failure for medical audit trail
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'INSULIN_RECORD_CREATION_FAILED',
+                'failure',
+                {
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    insulinType,
+                    units: parseFloat(units),
+                    entrySource: 'Patient Insulin Logging Screen',
+                    platform: Platform.OS
+                }
+            );
+            
             Alert.alert('Error', 'Failed to save insulin record. Please try again.');
         } finally {
             setLoading(false);

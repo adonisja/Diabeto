@@ -9,11 +9,13 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../firebase/AuthContext';
 import NotificationService, { NotificationSettings as NotificationSettingsType, defaultNotificationSettings } from '../../firebase/NotificationService';
+import { logAction } from '../../firebase/LogService';
 import { notificationSettingsStyles } from '../../assets/styles/componentStyles/notificationSettingsStyles';
 
 interface NotificationSettingsProps {
@@ -50,6 +52,22 @@ export default function NotificationSettings({ onClose }: NotificationSettingsPr
 
     try {
       setSaving(true);
+      
+      // Log settings save attempt
+      await logAction(
+        user.uid,
+        userProfile?.username || '',
+        user.email || '',
+        userProfile?.role || 'caretaker',
+        'NOTIFICATION_SETTINGS_SAVE_ATTEMPT',
+        'success',
+        {
+          settingsCount: Object.keys(settings).length,
+          pushNotificationsEnabled: settings.pushNotificationsEnabled,
+          timestamp: new Date().toISOString()
+        }
+      );
+      
       const success = await NotificationService.saveNotificationSettings(
         user.uid,
         settings,
@@ -58,12 +76,55 @@ export default function NotificationSettings({ onClose }: NotificationSettingsPr
       );
 
       if (success) {
+        // Log successful settings save
+        await logAction(
+          user.uid,
+          userProfile?.username || '',
+          user.email || '',
+          userProfile?.role || 'caretaker',
+          'NOTIFICATION_SETTINGS_SAVED',
+          'success',
+          {
+            settings: settings,
+            timestamp: new Date().toISOString()
+          }
+        );
+        
         Alert.alert('Success', 'Notification settings saved successfully');
       } else {
+        // Log settings save failure
+        await logAction(
+          user.uid,
+          userProfile?.username || '',
+          user.email || '',
+          userProfile?.role || 'caretaker',
+          'NOTIFICATION_SETTINGS_SAVE_FAILED',
+          'failure',
+          {
+            error: 'Service returned false',
+            timestamp: new Date().toISOString()
+          }
+        );
+        
         Alert.alert('Error', 'Failed to save notification settings');
       }
     } catch (error) {
       console.error('Error saving notification settings:', error);
+      
+      // Log settings save error
+      await logAction(
+        user?.uid || '',
+        userProfile?.username || '',
+        user?.email || '',
+        userProfile?.role || 'caretaker',
+        'NOTIFICATION_SETTINGS_SAVE_ERROR',
+        'failure',
+        {
+          error: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date().toISOString()
+        }
+      );
+      
       Alert.alert('Error', 'Failed to save notification settings');
     } finally {
       setSaving(false);
@@ -81,8 +142,37 @@ export default function NotificationSettings({ onClose }: NotificationSettingsPr
     const hasPermission = await NotificationService.requestPermissions();
     if (hasPermission) {
       updateSetting('pushNotificationsEnabled', true);
+      
+      // Log successful permission grant
+      await logAction(
+        user?.uid || '',
+        userProfile?.username || '',
+        user?.email || '',
+        userProfile?.role || 'caretaker',
+        'NOTIFICATION_PERMISSIONS_GRANTED',
+        'success',
+        {
+          platform: Platform.OS,
+          timestamp: new Date().toISOString()
+        }
+      );
+      
       Alert.alert('Success', 'Push notifications enabled successfully');
     } else {
+      // Log permission denial
+      await logAction(
+        user?.uid || '',
+        userProfile?.username || '',
+        user?.email || '',
+        userProfile?.role || 'caretaker',
+        'NOTIFICATION_PERMISSIONS_DENIED',
+        'failure',
+        {
+          platform: Platform.OS,
+          timestamp: new Date().toISOString()
+        }
+      );
+      
       Alert.alert(
         'Permission Denied',
         'Please enable notifications in your device settings to receive medical alerts.'

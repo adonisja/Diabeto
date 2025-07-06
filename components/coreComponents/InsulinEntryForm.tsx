@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../firebase/AuthContext';
 import { collection, addDoc, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
+import { logAction } from '../../firebase/LogService';
 import HumanBodyDiagram from './HumanBodyDiagram';
 import insulinEntryStyles from '../../assets/styles/componentStyles/insulinEntryStyles';
 
@@ -229,6 +230,26 @@ export default function InsulinEntryForm({ onClose, onSuccess }: InsulinEntryFor
 
             await addDoc(collection(db, 'insulinRecords'), insulinRecord);
             
+            // Log successful insulin entry
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'INSULIN_ENTRY_SUCCESS',
+                'success',
+                {
+                    insulinType: insulinRecord.insulinType,
+                    units: insulinRecord.units,
+                    injectionSite: insulinRecord.injectionSite,
+                    injectionSubSite: insulinRecord.injectionSubSite,
+                    mealTiming: insulinRecord.mealTiming,
+                    hasNotes: insulinRecord.notes.length > 0,
+                    entryMethod: 'manual',
+                    timestamp: new Date().toISOString()
+                }
+            );
+
             Alert.alert(
                 'Success',
                 'Insulin record saved successfully!',
@@ -236,6 +257,24 @@ export default function InsulinEntryForm({ onClose, onSuccess }: InsulinEntryFor
             );
         } catch (error) {
             console.error('Error saving insulin record:', error);
+            
+            // Log insulin entry failure
+            await logAction(
+                user?.uid || '',
+                userProfile?.username || '',
+                user?.email || '',
+                userProfile?.role || 'patient',
+                'INSULIN_ENTRY_FAILED',
+                'failure',
+                {
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                    insulinType,
+                    units: parseFloat(units || '0'),
+                    injectionSite: selectedSite,
+                    timestamp: new Date().toISOString()
+                }
+            );
+            
             Alert.alert('Error', 'Failed to save insulin record. Please try again.');
         } finally {
             setLoading(false);
