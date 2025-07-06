@@ -123,6 +123,7 @@ diabeto/
 │   ├── app/(protected)/index.tsx    # 🆕 Landing page with centralized navigation
 │   ├── app/(protected)/home.jsx     # Legacy home (may be deprecated)
 │   ├── app/(protected)/userProfile.tsx # Profile completion
+│   ├── app/(protected)/medical-alert-detail.tsx # 🆕 Medical alert detail screen
 │   ├── app/(protected)/(patient)/   # Patient dashboard
 │   ├── app/(protected)/(doctor)/    # Doctor dashboard
 │   ├── app/(protected)/(caretaker)/ # Caretaker dashboard
@@ -132,6 +133,7 @@ diabeto/
 │   ├── firebase/firebaseConfig.ts   # SDK initialization
 │   ├── firebase/AuthContext.tsx     # Auth state management
 │   ├── firebase/LogService.tsx      # Audit logging service
+│   ├── firebase/NotificationService.tsx # 🆕 Push notification management & alert delivery
 │   ├── firestore.rules             # Medical-grade security rules
 │   └── firestore.indexes.json      # Query optimization
 │
@@ -151,16 +153,34 @@ diabeto/
 │   │   │   ├── GlucoseMonitoringHub.tsx    # Glucose system main hub
 │   │   │   ├── GlucoseEntryForm.tsx        # Manual glucose entry
 │   │   │   ├── GlucoseReadingsViewer.tsx   # History and analytics
-│   │   │   └── CGMIntegration.tsx          # Continuous glucose monitor sync
+│   │   │   ├── CGMIntegration.tsx          # Continuous glucose monitor sync
+│   │   │   ├── HeartRateEntryForm.tsx      # Manual heart rate entry with pulse counter
+│   │   │   ├── HeartRateReadingsViewer.tsx # Heart rate history and trends
+│   │   │   ├── HeartRateDeviceIntegration.tsx # Heart rate device sync and management
+│   │   │   ├── BloodPressureEntryForm.tsx  # Manual blood pressure entry with validation
+│   │   │   ├── BloodPressureReadingsViewer.tsx # Blood pressure history and analytics
+│   │   │   ├── BloodPressureDeviceIntegration.tsx # Blood pressure device sync and management
+│   │   │   ├── MedicalAlertsPanel.tsx      # 🆕 Medical alerts dashboard with severity filtering
+│   │   │   ├── NotificationSettings.tsx    # 🆕 Push notification preferences for caretakers
+│   │   │   └── MedicalAlertDetailScreen.tsx # 🆕 Detailed alert view with medical explanations
 │   │   └── miscComponents/         # Helper components
 │   ├── assets/styles/              # Organized styling
 │   │   ├── componentStyles/        # Component-specific styles
 │   │   │   ├── glucoseEntryStyles.ts       # Manual entry form styles
 │   │   │   ├── glucoseViewerStyles.ts      # History viewer styles
 │   │   │   ├── glucoseHubStyles.ts         # Main hub styles
-│   │   │   └── cgmStyles.ts                # CGM integration styles
+│   │   │   ├── cgmStyles.ts                # CGM integration styles
+│   │   │   ├── heartRateEntryStyles.ts     # Heart rate entry form styles
+│   │   │   ├── heartRateViewerStyles.ts    # Heart rate history viewer styles
+│   │   │   ├── heartRateDeviceStyles.ts    # Heart rate device integration styles
+│   │   │   ├── bloodPressureEntryStyles.ts # Blood pressure entry form styles
+│   │   │   ├── bloodPressureViewerStyles.ts # Blood pressure history viewer styles
+│   │   │   ├── bloodPressureDeviceStyles.ts # Blood pressure device integration styles
+│   │   │   ├── medicalAlertsPanelStyles.ts # 🆕 Medical alerts panel styling
+│   │   │   └── notificationSettingsStyles.ts # 🆕 Notification preferences styling
 │   │   ├── authStyles/             # Authentication styles
-│   │   └── protectedStyles/        # Protected area styles
+│   │   ├── protectedStyles/        # Protected area styles
+│   │   │   └── medicalAlertDetailStyles.ts # 🆕 Alert detail screen styling
 │   ├── assets/images/              # Icons and branding
 │   └── constants/Colors.ts         # Theme management
 │
@@ -348,6 +368,136 @@ This system represents modern healthcare app design: empowering patients with to
 
 ---
 
+## 🚨 Medical Alert & Notification System (Latest Update - 2025)
+
+### Comprehensive Abnormal Reading Alert Architecture
+Implemented a sophisticated medical alert system that automatically detects abnormal readings and provides real-time notifications to healthcare providers and caretakers.
+
+**System Architecture**:
+- **🔧 Real-Time Alert Generation**: Automatic detection of abnormal readings during data entry
+- **📱 Push Notification Integration**: Expo Notifications for caretaker alerts with toggleable preferences
+- **🎯 Role-Based Alert Delivery**: Doctors alerted in-app only, caretakers receive push notifications
+- **📊 Severity Classification**: Warning, Mild, Severe, Critical levels with appropriate medical context
+- **🛡️ Medical Compliance**: Evidence-based thresholds and explanations for all alert categories
+
+**Alert Categories & Thresholds**:
+
+**🩸 Blood Pressure Alerts**:
+- **Warning**: Elevated (120-129/<80) or Stage 1 Hypertension (130-139/80-89)
+- **Mild**: Stage 2 Hypertension (140-179/90-119)
+- **Severe**: Severe Hypertension (≥180/≥120)
+- **Critical**: Hypertensive Crisis requiring immediate medical attention
+
+**🍭 Blood Glucose Alerts**:
+- **Warning**: Mildly elevated (180-250 mg/dL) or low normal (70-80 mg/dL)
+- **Mild**: Moderate hyperglycemia (250-350 mg/dL) or mild hypoglycemia (60-70 mg/dL)
+- **Severe**: High hyperglycemia (350-500 mg/dL) or moderate hypoglycemia (40-60 mg/dL)
+- **Critical**: Dangerous levels (>500 or <40 mg/dL) requiring immediate intervention
+
+**❤️ Heart Rate Alerts**:
+- **Warning**: Mild bradycardia (50-60 BPM) or mild tachycardia (100-120 BPM)
+- **Mild**: Moderate bradycardia (40-50 BPM) or moderate tachycardia (120-150 BPM)
+- **Severe**: Significant bradycardia (30-40 BPM) or significant tachycardia (150-180 BPM)
+- **Critical**: Life-threatening rhythms (<30 or >180 BPM)
+
+**Technical Implementation**:
+
+#### Alert Generation System
+```typescript
+// Automatic alert generation during reading entry
+const generateAlert = (reading: MedicalReading) => {
+    const severity = determineSeverity(reading);
+    if (severity !== 'normal') {
+        const alert: MedicalAlert = {
+            id: generateAlertId(),
+            patientId: reading.userId,
+            readingType: reading.type,
+            severity,
+            readingValue: reading.value,
+            timestamp: new Date(),
+            description: getMedicalExplanation(reading, severity),
+            acknowledged: false
+        };
+        
+        // Store alert and notify appropriate users
+        storeAlert(alert);
+        notifyCaretakers(alert);
+    }
+};
+```
+
+#### Push Notification Architecture
+```typescript
+// NotificationService integration
+export class NotificationService {
+    // Initialize for caretakers automatically
+    static async initializeForCaretaker(userId: string) {
+        await this.requestPermissions();
+        await this.configurePushToken(userId);
+        await this.setupNotificationChannels();
+    }
+    
+    // Send alert to caretakers
+    static async sendAlertNotification(alert: MedicalAlert) {
+        const caretakers = await getPatientCaretakers(alert.patientId);
+        
+        for (const caretaker of caretakers) {
+            const settings = await getNotificationSettings(caretaker.id);
+            if (settings.alertsEnabled) {
+                await this.sendPushNotification(caretaker.pushToken, {
+                    title: `${alert.severity.toUpperCase()} Alert`,
+                    body: `Patient has abnormal ${alert.readingType}: ${alert.readingValue}`,
+                    data: { alertId: alert.id }
+                });
+            }
+        }
+    }
+}
+```
+
+**User Experience Features**:
+
+#### Medical Alerts Panel
+- **📊 Severity Filtering**: Filter alerts by Warning, Mild, Severe, Critical levels
+- **🕒 Real-Time Updates**: Live alert feed with automatic refresh
+- **🎯 Quick Actions**: Mark as acknowledged, view details, contact patient
+- **📱 Mobile Optimized**: Responsive design for healthcare provider mobile access
+
+#### Alert Detail Screen
+- **📋 Comprehensive Information**: Full reading context, medical explanation, severity rationale
+- **📞 Action Buttons**: Call patient, message caretaker, schedule follow-up
+- **📈 Historical Context**: Related readings and trend analysis
+- **🏥 Medical Guidance**: Evidence-based recommendations and next steps
+
+#### Notification Settings (Caretakers)
+- **🔔 Alert Preferences**: Toggle push notifications for different severity levels
+- **⏰ Quiet Hours**: Configure do-not-disturb periods for non-critical alerts
+- **📱 Delivery Options**: In-app only vs push notifications
+- **🎯 Severity Thresholds**: Customize which severity levels trigger notifications
+
+**Security & Privacy Features**:
+- **🔐 Role-Based Access**: Only authorized caretakers/doctors see patient alerts
+- **📝 Audit Trail**: Complete logging of alert generation, delivery, and acknowledgment
+- **🛡️ HIPAA Compliance**: All alert data encrypted and access-controlled
+- **⏱️ Retention Policy**: Alerts automatically archived after 30 days
+
+**Integration Points**:
+- **📊 Entry Forms**: Automatic alert generation in BloodPressureEntryForm, GlucoseEntryForm
+- **👨‍⚕️ Doctor Dashboard**: MedicalAlertsPanel integrated for in-app notifications
+- **👩‍⚕️ Caretaker Dashboard**: MedicalAlertsPanel + NotificationSettings access
+- **🔐 AuthContext**: Automatic notification service initialization for caretakers
+- **📱 Expo Notifications**: Cross-platform push notification delivery
+
+**Medical Compliance**:
+- **📚 Evidence-Based Thresholds**: All alert levels based on medical literature
+- **🏥 Clinical Context**: Detailed explanations for each severity level
+- **📋 Actionable Guidance**: Clear next steps for healthcare providers
+- **⚕️ Professional Standards**: Follows medical emergency response protocols
+
+This system bridges the gap between patient self-monitoring and professional healthcare oversight, ensuring that abnormal readings are quickly identified and appropriate care providers are notified through their preferred communication channels.
+
+---
+
 ## 📚 Documentation Structure
 
 The project maintains comprehensive documentation across multiple files:
@@ -409,6 +559,8 @@ Implemented comprehensive design unification between patient and caretaker dashb
 - **Action Cards**: Vibrant gradient cards with specific feature colors:
   - Glucose: Blue gradient (`#4facfe → #00f2fe`)
   - Insulin: Green gradient (`#43e97b → #38f9d7`) with "✨ Starry Guide" branding
+  - Heart Rate: Rose-coral gradient (`#ff6b6b → #feca57`) with cardiovascular theme
+  - Blood Pressure: Purple-pink gradient (`#6a82fb → #fc5c7d`) with cardiovascular monitoring
   - Invitations: Pink-yellow gradient (`#fa709a → #fee140`)
   - Profile: Soft gradient (`#a8edea → #fed6e3`)
 - **Health Tips**: Daily wellness advice with iconography
@@ -419,6 +571,8 @@ Implemented comprehensive design unification between patient and caretaker dashb
 - **Action Cards**: Professional gradient cards with caretaker-specific colors:
   - Glucose: Emerald gradient (`#10b981 → #059669`)
   - Insulin: Amber gradient (`#f59e0b → #d97706`) with "✨ Starry Guide" branding
+  - Heart Rate: Crimson gradient (`#dc2626 → #b91c1c`) with cardiovascular monitoring
+  - Blood Pressure: Indigo gradient (`#6366f1 → #4f46e5`) with cardiovascular tracking
   - Invite Patient: Pink gradient (`#ec4899 → #be185d`)
   - View Patients: Blue gradient (`#3b82f6 → #1d4ed8`)
 - **Professional Upgrade**: Doctor verification section with upgrade call-to-action
@@ -646,6 +800,129 @@ Implemented comprehensive insulin administration tracking with revolutionary sta
 - **Performance**: Optimized animations with proper resource management
 
 This implementation represents a significant advancement in medical app UX design, proving that healthcare applications can be both medically compliant and visually engaging.
+
+### Heart Rate Monitoring System Implementation (Enhanced July 2025)
+Implemented comprehensive cardiovascular health tracking with both manual entry and digital device integration capabilities. This system provides patients with comprehensive heart rate monitoring tools while maintaining the app's modern, vibrant design language and medical-grade accuracy.
+
+**New Architecture Components**:
+- **Dedicated Heart Rate Monitoring Screen**: `app/(protected)/(patient)/heart-rate-monitoring.tsx`
+- **Manual Entry with Pulse Counter**: Built-in pulse counting functionality with animated heart icon
+- **Device Integration Hub**: Mock device management for smartwatches and fitness trackers
+- **Historical Analytics**: Trend analysis with visual indicators and statistical summaries
+- **Modular Component Design**: Separate components for entry, viewing, and device management
+
+**Heart Rate Entry Features**:
+- **Manual Input Validation**: Medical-grade validation for heart rate ranges (60-200 BPM)
+- **Built-in Pulse Counter**: Interactive pulse counting with timing and animated feedback
+- **Measurement Context**: Options for rest, exercise, post-meal, and stress measurements
+- **Notes Integration**: Additional context recording for medical review
+- **Real-time Validation**: Immediate feedback for abnormal readings with appropriate alerts
+
+**Device Integration Capabilities**:
+- **Mock Device Management**: Simulated Apple Watch, Fitbit, and Samsung Health integration
+- **Auto-sync Settings**: Configurable automatic synchronization frequency and preferences
+- **Device Discovery**: Simulated Bluetooth device scanning and connection management
+- **Sync Status Tracking**: Real-time status updates and last sync timestamps
+- **Integration Tips**: User guidance for optimal device setup and troubleshooting
+
+**Historical Data & Analytics**:
+- **Trend Visualization**: Visual trend indicators (improving ↗️, declining ↘️, stable ➡️)
+- **Statistical Analysis**: Weekly and monthly averages, ranges, and pattern identification
+- **Time-based Filtering**: Historical data organization by timeframe and measurement context
+- **Empty State Handling**: Encouraging messaging and guidance for new users
+- **Export Readiness**: Data formatted for sharing with healthcare providers
+
+**Medical Compliance & Safety**:
+- **Validated Ranges**: Medical-standard heart rate validation (60-200 BPM with alerts)
+- **Context Recording**: Measurement circumstances for accurate medical interpretation
+- **Abnormal Reading Alerts**: Immediate feedback for readings outside normal ranges
+- **Audit Trail Integration**: Complete logging with timestamp, device, and measurement context
+- **Healthcare Provider Sharing**: Data formatted for medical review and analysis
+
+**Visual Design & User Experience**:
+- **Vibrant Gradient Design**: Rose red to coral orange gradients matching cardiovascular theme
+- **Animated Pulse Counter**: Real-time heart animation during manual pulse counting
+- **Card-based Navigation**: Modern card layout for entry, history, and device options
+- **Progressive Disclosure**: Information revealed as needed to reduce cognitive load
+- **Accessibility Optimized**: Large touch targets, clear typography, and high contrast ratios
+
+**Technical Implementation**:
+- **Component Modularity**: Separate components for entry, viewing, and device management
+- **State Management**: Clean state handling with proper lifecycle management
+- **Firebase Integration**: Seamless data logging and retrieval with audit trail
+- **TypeScript Compliance**: Full type safety with proper interface definitions
+- **Performance Optimized**: Efficient rendering and memory management
+
+**Files Added/Enhanced**:
+- `app/(protected)/(patient)/heart-rate-monitoring.tsx` (main navigation hub)
+- `components/coreComponents/HeartRateEntryForm.tsx` (manual entry with pulse counter)
+- `components/coreComponents/HeartRateReadingsViewer.tsx` (history and analytics)
+- `components/coreComponents/HeartRateDeviceIntegration.tsx` (device management)
+- `assets/styles/protectedStyles/patientStyles/heartRateMonitoringScreenStyles.ts` (screen styling)
+- `assets/styles/componentStyles/heartRateEntryStyles.ts` (entry form styling)
+- `assets/styles/componentStyles/heartRateViewerStyles.ts` (history viewer styling)
+- `assets/styles/componentStyles/heartRateDeviceStyles.ts` (device integration styling)
+- `app/(protected)/(patient)/index.tsx` (dashboard integration with new heart rate card)
+
+**Architecture Benefits**:
+- **Comprehensive Coverage**: Both manual and digital entry methods supported
+- **Medical Accuracy**: Validated ranges and proper medical context recording
+- **User Engagement**: Interactive pulse counter makes manual entry engaging
+- **Future-Ready**: Architecture supports real device integration when implemented
+- **Consistent Design**: Follows established app patterns and visual language
+- **Scalable Pattern**: Design patterns applicable to other vital sign monitoring features
+
+This implementation establishes heart rate monitoring as a core feature alongside glucose and insulin tracking, providing patients with comprehensive cardiovascular health management tools while maintaining the app's commitment to medical accuracy and engaging user experience.
+
+### Blood Pressure Monitoring System Implementation (Enhanced July 2025)
+Implemented comprehensive cardiovascular health tracking with blood pressure measurements, providing both manual entry and digital device integration capabilities. This system extends the cardiovascular monitoring suite alongside heart rate tracking, following the same modular architecture and medical-grade validation standards.
+
+**Key Components Implemented**:
+- **Dedicated Blood Pressure Monitoring Screen**: `app/(protected)/(patient)/blood-pressure-monitoring.tsx`
+- **Manual Entry Form**: `components/coreComponents/BloodPressureEntryForm.tsx`
+- **Readings History Viewer**: `components/coreComponents/BloodPressureReadingsViewer.tsx`
+- **Device Integration**: `components/coreComponents/BloodPressureDeviceIntegration.tsx`
+- **Comprehensive Styling**: Complete style definitions for all blood pressure components
+
+**Blood Pressure Entry Features**:
+- **Medical-Grade Validation**: Systolic (70-250 mmHg) and diastolic (40-150 mmHg) ranges with relationship validation
+- **Blood Pressure Categories**: Normal, Elevated, High Stage 1/2, Hypertensive Crisis with color coding
+- **Real-Time Status Display**: Immediate feedback on blood pressure category during entry
+- **Context-Aware Entry**: Morning, Evening, After Exercise, After Medication timing contexts
+- **Optional Heart Rate**: Integrated pulse measurement with blood pressure readings
+- **Comprehensive Notes**: Free-form text for medical context and observations
+- **Gradient Status Indicators**: Color-coded visual feedback for different pressure categories
+
+**Blood Pressure History & Analytics**:
+- **Time-Based Filtering**: Weekly, monthly, and quarterly trend analysis
+- **Statistical Summaries**: Average systolic/diastolic pressure, pulse, and reading counts
+- **Range Analysis**: Min/max pressure tracking and trend identification
+- **Category Color Coding**: Visual indicators for Normal (green), Elevated (yellow), High (orange/red), Crisis (purple)
+- **Reading Management**: Individual reading deletion with confirmation prompts
+- **Refresh Capabilities**: Manual data refresh and real-time updates
+
+**Device Integration Architecture**:
+- **Multi-Device Support**: Mock integration for OMRON BP652 (Bluetooth) and Withings BPM Core (WiFi)
+- **Connection Management**: Connect/disconnect device functionality with status tracking
+- **Sync Automation**: Configurable auto-sync intervals (15min, 30min, 1hour, 4hours)
+- **Battery Monitoring**: Device battery level tracking and low battery alerts
+- **Import Analytics**: Reading count tracking and sync success confirmation
+- **Device Discovery**: Automatic device detection and pairing assistance
+
+**Design Philosophy**:
+- **Medical Accuracy**: Professional-grade validation matching clinical standards
+- **User-Friendly Interface**: Intuitive blood pressure entry with clear visual feedback
+- **Visual Health Communication**: Color-coded categories help users understand their readings
+- **Comprehensive Tracking**: Full cardiovascular profile with heart rate and blood pressure data
+- **Device Ecosystem**: Ready for real device integration with major blood pressure monitor brands
+
+**Integration Points**:
+- `app/(protected)/(patient)/index.tsx` (dashboard integration with new blood pressure card)
+- Firestore logging through LogService for all blood pressure-related activities
+- Authentication integration for user-specific data management
+- Consistent design language with existing glucose and insulin monitoring systems
+
+This implementation establishes blood pressure monitoring as a comprehensive cardiovascular health feature, complementing heart rate tracking to provide patients with complete cardiovascular health management tools while maintaining medical accuracy and an engaging user experience.
 
 ### Profile Management & User Experience Improvements (July 2025)
 Implemented comprehensive profile management improvements to enhance user experience and maintain data integrity:

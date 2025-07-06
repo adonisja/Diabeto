@@ -1,8 +1,9 @@
 // firebase/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, onSnapshot, getDoc, setDoc, collection } from 'firebase/firestore'; // Import collection
-import { auth, db } from './firebaseConfig'; // Ensure firebaseConfig provides auth and db instances
+import { doc, onSnapshot, getDoc, setDoc, collection } from 'firebase/firestore';
+import { auth, db } from './firebaseConfig';
+import NotificationService from './NotificationService';
 
 // Define the shape of your user profile data
 export interface UserProfile {
@@ -80,11 +81,25 @@ const userDocRef = doc(db, 'artifacts', FIREBASE_APP_ID, 'users', firebaseUser.u
           if (docSnap.exists()) {
             const data = docSnap.data() as UserProfile;
             // Ensure UID and email from Firebase Auth are always available in userProfile
-            setUserProfile({
+            const profileData = {
               ...data,
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
-            });
+            };
+            setUserProfile(profileData);
+            
+            // Initialize notification service for caretakers
+            if (profileData.role === 'caretaker') {
+              NotificationService.initialize(firebaseUser.uid, profileData.role)
+                .then((success) => {
+                  if (success) {
+                    console.log('Notification service initialized for caretaker');
+                  }
+                })
+                .catch((error) => {
+                  console.error('Error initializing notification service:', error);
+                });
+            }
           } else {
             // If no profile document, create a basic one immediately
             // This is for newly registered users who don't have a profile yet

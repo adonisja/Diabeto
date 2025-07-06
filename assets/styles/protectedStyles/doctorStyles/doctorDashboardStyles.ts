@@ -38,6 +38,12 @@ export const doctorDashboardStyles = StyleSheet.create({
     actionsContainer: {
         marginBottom: 30,
     },
+    alertsContainer: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderRadius: 15,
+        marginBottom: 30,
+        overflow: 'hidden',
+    },
     actionCard: {
         backgroundColor: 'rgba(255,255,255,0.2)',
         borderRadius: 15,

@@ -47,6 +47,11 @@ pnpm-debug.log*
 .env.production.local
 .env*.local
 
+# Keystores and certificates (NEVER COMMIT THESE)
+*.keystore
+android/keystores/
+*.jks
+
 # Firebase
 .firebaserc
 firebase-debug.log

@@ -10,16 +10,6 @@ export default function PatientLayout() {
                     headerShown: false, // Using custom AppHeader instead
                 }}
             />
-            {/* Patient's invitations screen */}
-            <Stack.Screen
-                name="invitations" // Corresponds to app/(protected)/(patient)/invitations.tsx
-                options={{
-                    title: 'My Invitations',
-                    headerShown: true,
-                    headerTintColor: '#fff',
-                    headerStyle: { backgroundColor: '#3b5998' },
-                }}
-            />
             
             {/* Insulin Logging Screen */}
             <Stack.Screen

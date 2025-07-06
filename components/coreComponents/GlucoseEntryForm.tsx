@@ -20,6 +20,8 @@ import { setFingerSelectionCallback, clearFingerSelectionCallback } from '../../
 import { useAuth } from '../../firebase/AuthContext';
 import { collection, addDoc, serverTimestamp, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseConfig';
+import { logAction } from '../../firebase/LogService';
+import NotificationService from '../../firebase/NotificationService';
 import glucoseEntryStyles from "../../assets/styles/componentStyles/glucoseEntryStyles"
 
 interface GlucoseEntryFormProps {
@@ -194,6 +196,84 @@ export default function GlucoseEntryForm({ onClose, onSuccess }: GlucoseEntryFor
         }
     };
 
+    const getGlucoseAlertSeverity = (status: string): 'mild' | 'warning' | 'severe' | 'critical' | null => {
+        switch (status) {
+            case 'low': return 'severe'; // Low glucose can be dangerous
+            case 'elevated': return 'mild';
+            case 'high': return 'warning';
+            default: return null; // Normal doesn't need an alert
+        }
+    };
+
+    const getGlucoseAlertDescription = (status: string, value: number, readingType: string): string => {
+        const ranges = GLUCOSE_RANGES[readingType as keyof typeof GLUCOSE_RANGES];
+        switch (status) {
+            case 'low': 
+                return `Hypoglycemia - Blood glucose level is dangerously low (${value} mg/dL). Immediate action required: consume 15g of fast-acting carbohydrates.`;
+            case 'elevated': 
+                return `Elevated glucose - Reading is above normal range (${value} mg/dL vs normal: ${ranges.normal[0]}-${ranges.normal[1]} mg/dL). Consider dietary adjustments and monitor closely.`;
+            case 'high': 
+                return `Hyperglycemia - Blood glucose level is significantly elevated (${value} mg/dL). Check for ketones, ensure medication compliance, and contact healthcare provider if symptoms persist.`;
+            default: 
+                return '';
+        }
+    };
+
+    const generateGlucoseAlert = async (value: number, status: string, readingType: string) => {
+        const severity = getGlucoseAlertSeverity(status);
+        if (!severity) return; // No alert needed for normal readings
+
+        const ranges = GLUCOSE_RANGES[readingType as keyof typeof GLUCOSE_RANGES];
+        const normalRange = `${ranges.normal[0]}-${ranges.normal[1]} mg/dL`;
+
+        // Log the medical alert generation
+        await logAction(
+            user?.uid || '',
+            userProfile?.username || '',
+            user?.email || '',
+            userProfile?.role || 'patient',
+            'MEDICAL_ALERT_GENERATED',
+            'success',
+            {
+                alertType: 'glucose',
+                severity: severity,
+                readingValue: `${value} mg/dL`,
+                status: status,
+                readingType: readingType,
+                glucoseValue: value,
+                normalRange: normalRange,
+                fingerPricked: reading.fingerPricked,
+                notes: reading.notes.trim(),
+                description: getGlucoseAlertDescription(status, value, readingType),
+                timestamp: new Date().toISOString(),
+                patientId: user?.uid,
+                patientName: userProfile?.firstName || userProfile?.username || 'Unknown Patient'
+            }
+        );
+
+        // In a real implementation, this would also save to Firestore
+        console.log('Glucose Alert Generated:', {
+            type: 'glucose',
+            severity: severity,
+            value: `${value} mg/dL`,
+            description: getGlucoseAlertDescription(status, value, readingType)
+        });
+
+        // Send push notification to caretakers
+        // In a real implementation, this would query Firestore for all caretakers
+        // associated with this patient and send notifications to them
+        await NotificationService.sendMedicalAlertNotification(
+            user?.uid || '', // In real implementation, this would be caretaker IDs
+            {
+                patientName: userProfile?.firstName || userProfile?.username || 'Unknown Patient',
+                readingType: 'Glucose',
+                severity: severity,
+                value: `${value} mg/dL`,
+                description: getGlucoseAlertDescription(status, value, readingType)
+            }
+        );
+    };
+
     const validateGlucoseValue = (value: string) => {
         const numValue = parseFloat(value);
         return !isNaN(numValue) && numValue > 0 && numValue <= 600;
@@ -242,6 +322,9 @@ export default function GlucoseEntryForm({ onClose, onSuccess }: GlucoseEntryFor
             };
 
             await addDoc(collection(db, 'glucoseReadings'), readingData);
+            
+            // Generate medical alert if reading is abnormal
+            await generateGlucoseAlert(glucoseValue, status, reading.readingType);
             
             Alert.alert(
                 'Reading Saved! 🎉',

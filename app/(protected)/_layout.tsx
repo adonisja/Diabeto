@@ -31,6 +31,7 @@ export default function ProtectedLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="home" />
             <Stack.Screen name="userProfile" />
+            <Stack.Screen name="medical-alert-detail" />
             <Stack.Screen name="(admin)" />
             <Stack.Screen name="(caretaker)" />
             <Stack.Screen name="(doctor)" />

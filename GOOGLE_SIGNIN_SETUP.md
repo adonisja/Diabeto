@@ -41,7 +41,7 @@ You'll need to create three OAuth clients:
 
 #### Android Client ID
 - **Application type**: Android
-- **Package name**: `com.andrewheim.firebaseexpoguide` (from app.json)
+- **Package name**: `com.adonisja.Diabeto` (from app.json)
 - **SHA-1 certificate fingerprint**: Get from Expo or your keystore
 - **Use for**: `EXPO_PUBLIC_GOOGLE_OAUTH_ANDROID_CLIENT_ID`
 

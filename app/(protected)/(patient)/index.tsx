@@ -20,6 +20,14 @@ export default function PatientDashboardScreen() {
         router.push('/(protected)/(patient)/insulin-logging');
     };
 
+    const handleHeartRateMonitoring = () => {
+        router.push('/(protected)/(patient)/heart-rate-monitoring');
+    };
+
+    const handleBloodPressureMonitoring = () => {
+        router.push('/(protected)/(patient)/blood-pressure-monitoring');
+    };
+
     return (
         <SafeAreaView style={patientDashboardStyles.outerContainer}>
             <StatusBar barStyle="light-content" backgroundColor="#667eea" />
@@ -79,6 +87,34 @@ export default function PatientDashboardScreen() {
                                 <Ionicons name="medical" size={32} color="#fff" />
                                 <Text style={patientDashboardStyles.cardTitle}>Insulin</Text>
                                 <Text style={patientDashboardStyles.cardSubtitle}>✨ Starry Guide</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[patientDashboardStyles.actionCard, patientDashboardStyles.heartRateCard]}
+                            onPress={handleHeartRateMonitoring}
+                        >
+                            <LinearGradient
+                                colors={['#ff6b6b', '#feca57']}
+                                style={patientDashboardStyles.cardGradient}
+                            >
+                                <Ionicons name="heart" size={32} color="#fff" />
+                                <Text style={patientDashboardStyles.cardTitle}>Heart Rate</Text>
+                                <Text style={patientDashboardStyles.cardSubtitle}>Monitor & Track</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[patientDashboardStyles.actionCard, patientDashboardStyles.bloodPressureCard]}
+                            onPress={handleBloodPressureMonitoring}
+                        >
+                            <LinearGradient
+                                colors={['#6a82fb', '#fc5c7d']}
+                                style={patientDashboardStyles.cardGradient}
+                            >
+                                <Ionicons name="heart-outline" size={32} color="#fff" />
+                                <Text style={patientDashboardStyles.cardTitle}>Blood Pressure</Text>
+                                <Text style={patientDashboardStyles.cardSubtitle}>Check & Monitor</Text>
                             </LinearGradient>
                         </TouchableOpacity>
 

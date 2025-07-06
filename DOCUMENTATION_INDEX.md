@@ -1,6 +1,6 @@
 # Diabeto App - Complete Documentation Index & Reference
 **Date**: July 5, 2025  
-**Last Updated**: July 5, 2025 (Google Sign-In Authentication System Implementation)
+**Last Updated**: July 5, 2025 (Blood Pressure Monitoring System Implementation)
 **Status**: ✅ All Documentation & Code Complete
 
 ## 📋 Overview
@@ -30,7 +30,7 @@ This document serves as the single point of reference for all documentation in t
 - ✅ **All Documentation**: Updated and comprehensive
 - ✅ **Build Status**: Successful development server running
 - ✅ **Import Resolution**: All style import conflicts resolved
-- ✅ **Feature Implementation**: Enhanced glucose monitoring system complete
+- ✅ **Feature Implementation**: Medical Alert & Notification System complete
 
 ---
 
@@ -39,7 +39,7 @@ This document serves as the single point of reference for all documentation in t
 ### 🏗️ **ARCHITECTURE.md** - System Design & Patterns
 **Purpose**: High-level system architecture, design patterns, and architectural decisions  
 **Target Audience**: Developers, technical stakeholders, system architects  
-**Status**: ✅ Updated (Latest: Enhanced Glucose Monitoring System)
+**Status**: ✅ Updated (Latest: Blood Pressure Monitoring System)
 
 **Key Contents**:
 - **Core Architecture Principles**: Medical-grade security, authentication-first design
@@ -48,19 +48,20 @@ This document serves as the single point of reference for all documentation in t
 - **Enhanced Patient Experience Design**: Visual appeal philosophy and UI/UX patterns
 - **Enhanced Insulin Logging System**: Universal access with starry body diagram
 - **Enhanced Glucose Monitoring System**: Vibrant UI/UX with screen-based navigation and smart features
+- **Blood Pressure Monitoring System**: Comprehensive cardiovascular health tracking with medical validation and device integration
+- **🆕 Medical Alert & Notification System**: Automatic abnormal reading detection with real-time caretaker notifications
 - **Prescribed Dosage Management**: Doctor-controlled dosage system with patient override
 - **Security Flows**: Authentication, authorization, and data access patterns
 - **File Structure**: High-level organization of the codebase
 - **Development Guidelines**: Best practices and coding standards
 
 **Latest Updates**:
-- ✅ **Enhanced Glucose Monitoring System**: Complete UI/UX redesign with vibrant aesthetics and separated architecture
-- ✅ **Architecture Separation**: Independent styling systems for timing and finger selection
-- ✅ **Layout Stability**: Dedicated grid systems preventing layout corruption
-- ✅ **Prescribed Dosage Management Section**: Doctor prescription interface and patient override system
-- ✅ **Enhanced Database Schema**: UserProfile and InsulinRecord fields for dosage tracking
-- ✅ **Medical Oversight Features**: Audit trail and compliance monitoring
-- ✅ **Smart Validation System**: Auto-populated prescriptions with required justifications
+- ✅ **🆕 Medical Alert & Notification System**: Complete abnormal reading detection with real-time alerts and push notifications
+- ✅ **Alert Generation**: Automatic medical alert creation for blood pressure, glucose, and heart rate abnormalities
+- ✅ **Push Notification Integration**: Expo Notifications for caretaker alerts with user-toggleable preferences
+- ✅ **Severity Classification**: Warning, Mild, Severe, Critical levels with medical evidence-based thresholds
+- ✅ **Role-Based Delivery**: Doctors see in-app alerts, caretakers receive push notifications
+- ✅ **Comprehensive UI**: MedicalAlertsPanel and detailed alert view screens with professional medical interface
 
 ---
 
@@ -79,14 +80,12 @@ This document serves as the single point of reference for all documentation in t
 - **Database Schema**: Firestore collections and data structures (security rules maintained separately in firestore.rules)
 
 **Latest Updates**:
-- ✅ **Enhanced Glucose Monitoring System**: Complete component redesign with vibrant UI, separated architecture, and screen-based navigation
-- ✅ **Architecture Separation**: Independent styling systems for timing and finger selection components
-- ✅ **Layout Stability**: Dedicated grid structures preventing style conflicts and corruption
-- ✅ **Doctor Interface Documentation**: patient-dosages.tsx screen with prescription management
-- ✅ **Enhanced Patient Screens**: insulin-logging.tsx with prescribed dosage integration
-- ✅ **Caretaker Features**: insulin-logging.tsx with patient selection and starry interface
-- ✅ **Component Enhancements**: InsulinEntryForm with dosage override detection
-- ✅ **Style Documentation**: Enhanced insulin logging styles with dosage indicators
+- ✅ **🆕 Medical Alert & Notification System**: Complete abnormal reading detection, alerts panel, and push notification system
+- ✅ **Alert Generation Components**: Enhanced BloodPressureEntryForm and GlucoseEntryForm with automatic alert creation
+- ✅ **NotificationService Integration**: Comprehensive push notification management with user settings and delivery logic
+- ✅ **MedicalAlertsPanel Component**: Real-time alert dashboard for doctors and caretakers with severity filtering
+- ✅ **Notification Settings**: User-toggleable notification preferences with Firestore synchronization
+- ✅ **Alert Detail Screen**: Comprehensive alert information with medical explanations and action buttons
 
 ---
 
@@ -102,6 +101,8 @@ This document serves as the single point of reference for all documentation in t
 - **Testing Results**: Verification and validation of fixes
 
 **Latest Updates**:
+- ✅ **🆕 Feature Implementation #38**: **NEW** Medical Alert & Notification System with automatic abnormal reading detection and real-time caretaker notifications
+- ✅ **Feature Implementation #37**: **NEW** Blood Pressure Monitoring System with Medical Validation and Device Integration
 - ✅ **Feature Implementation #35**: **NEW** Enhanced Patient Reminder System with Custom Meal Support
 - ✅ **Feature Implementation #34**: Timing Selection Layout Architecture & Style Separation
 - ✅ **Feature Implementation #32**: Glucose Monitoring UI/UX Modernization & Header Cleanup
@@ -130,7 +131,133 @@ This document serves as the single point of reference for all documentation in t
 
 ---
 
-## 🆕 Latest Major Feature: Google Sign-In Authentication System
+## 🆕 Latest Major Feature: Heart Rate Monitoring System
+
+### 📊 **System Overview**
+**Implementation Date**: July 5, 2025  
+**Feature Type**: Cardiovascular Health Monitoring & Patient Care Enhancement  
+**Status**: ✅ Complete and Integrated  
+
+### **Heart Rate Monitoring System:**
+
+#### 1. **Manual Entry with Pulse Counter**:
+   - ✅ **Built-in Pulse Counter**: Interactive 15-second pulse counting with animated heart feedback
+   - ✅ **Medical Validation**: Heart rate range validation (60-200 BPM) with immediate alerts
+   - ✅ **Measurement Context**: Options for rest, exercise, post-meal, and stress measurements
+   - ✅ **Real-time Calculation**: Automatic BPM calculation and display during pulse counting
+   - ✅ **Notes Integration**: Additional context recording for medical review and analysis
+
+#### 2. **Device Integration Hub**:
+   - ✅ **Mock Device Management**: Simulated Apple Watch, Fitbit, and Samsung Health integration
+   - ✅ **Auto-sync Settings**: Configurable automatic synchronization frequency and preferences
+   - ✅ **Device Discovery**: Simulated Bluetooth device scanning and connection management
+   - ✅ **Sync Status Tracking**: Real-time status updates and last sync timestamps
+   - ✅ **Integration Tips**: User guidance for optimal device setup and troubleshooting
+
+#### 3. **Historical Analytics & Trends**:
+   - ✅ **Statistical Analysis**: Weekly and monthly averages, ranges, and pattern identification
+   - ✅ **Trend Visualization**: Visual indicators (improving ↗️, declining ↘️, stable ➡️)
+   - ✅ **Time-based Filtering**: Historical data organization by timeframe and measurement context
+   - ✅ **Export Ready**: Data formatted for sharing with healthcare providers
+   - ✅ **Empty State Guidance**: Encouraging messaging and tips for new users
+
+#### 4. **Dashboard Integration**:
+   - ✅ **New Heart Rate Card**: Added to patient dashboard with rose-coral gradient design
+   - ✅ **Navigation Hub**: Comprehensive monitoring screen with entry, history, and device options
+   - ✅ **Consistent Design**: Follows established app patterns and visual language
+   - ✅ **Modular Architecture**: Separate components for entry, viewing, and device management
+
+### **Technical Implementation**:
+- ✅ **Component Architecture**: Modular design with HeartRateEntryForm, HeartRateReadingsViewer, and HeartRateDeviceIntegration
+- ✅ **Style System**: Complete styling suite with heartRateEntryStyles, heartRateViewerStyles, and heartRateDeviceStyles
+- ✅ **Firebase Integration**: Seamless data logging and retrieval with audit trail
+- ✅ **TypeScript Compliance**: Full type safety with proper interface definitions
+- ✅ **Medical Standards**: Validated ranges and proper medical context recording
+
+### **Files Added/Enhanced**:
+- `app/(protected)/(patient)/heart-rate-monitoring.tsx` (main navigation hub)
+- `components/coreComponents/HeartRateEntryForm.tsx` (manual entry with pulse counter)
+- `components/coreComponents/HeartRateReadingsViewer.tsx` (history and analytics)
+- `components/coreComponents/HeartRateDeviceIntegration.tsx` (device management)
+- `assets/styles/protectedStyles/patientStyles/heartRateMonitoringScreenStyles.ts`
+- `assets/styles/componentStyles/heartRateEntryStyles.ts`
+- `assets/styles/componentStyles/heartRateViewerStyles.ts`
+- `assets/styles/componentStyles/heartRateDeviceStyles.ts`
+- `app/(protected)/(patient)/index.tsx` (dashboard integration)
+
+### **User Impact**:
+- 📈 **Enhanced Patient Care**: Comprehensive cardiovascular health monitoring capabilities
+- 💓 **Engaging Experience**: Interactive pulse counter makes manual entry enjoyable
+- 📱 **Future-Ready**: Architecture supports real device integration when implemented
+- 🎨 **Visual Appeal**: Vibrant gradients and modern design maintain app's aesthetic standards
+- 🏥 **Medical Accuracy**: Validated ranges and proper context recording for healthcare providers
+
+---
+
+## 🆕 Latest Major Feature: Blood Pressure Monitoring System
+
+### 📊 **System Overview**
+**Implementation Date**: July 5, 2025  
+**Feature Type**: Cardiovascular Health Monitoring & Medical Data Management  
+**Status**: ✅ Complete and Integrated  
+
+### **Blood Pressure Monitoring System:**
+
+#### 1. **Manual Entry with Medical Validation**:
+   - ✅ **Dual Input Validation**: Systolic (70-250 mmHg) and diastolic (40-150 mmHg) with relationship checking
+   - ✅ **Real-time Status Display**: Immediate blood pressure categorization (Normal, Elevated, High Stage 1/2, Crisis)
+   - ✅ **Medical Context Recording**: Timing options (Morning, Evening, After Exercise, After Medication, Other)
+   - ✅ **Optional Heart Rate**: Integrated pulse measurement (40-200 BPM) alongside blood pressure readings
+   - ✅ **Color-coded Feedback**: Visual indicators for different pressure categories following medical guidelines
+
+#### 2. **Historical Analytics & Trends**:
+   - ✅ **Time-based Filtering**: Weekly, monthly, and quarterly data analysis with statistical summaries
+   - ✅ **Comprehensive Statistics**: Average systolic/diastolic pressure, pulse, reading counts, and pressure ranges
+   - ✅ **Category Analysis**: Visual breakdown of readings by blood pressure category with medical compliance
+   - ✅ **Reading Management**: Individual reading deletion with confirmation and bulk data operations
+   - ✅ **Professional Data Display**: Medical-grade presentation optimized for healthcare provider review
+
+#### 3. **Device Integration Hub**:
+   - ✅ **Multi-Device Support**: Mock integration for OMRON BP652 (Bluetooth) and Withings BPM Core (WiFi)
+   - ✅ **Connection Management**: Device pairing, status tracking, and disconnection with real-time monitoring
+   - ✅ **Auto-sync Configuration**: Configurable sync intervals (15min, 30min, 1hour, 4hours) with manual override
+   - ✅ **Battery Monitoring**: Device battery level tracking with low battery alerts and notifications
+   - ✅ **Reading Import**: Simulated automatic blood pressure data import with medical validation
+
+#### 4. **Dashboard Integration**:
+   - ✅ **New Blood Pressure Card**: Added to patient dashboard with purple-pink gradient design
+   - ✅ **Navigation Hub**: Comprehensive monitoring screen with entry, history, and device management options
+   - ✅ **Consistent Architecture**: Follows established modular patterns and visual design language
+   - ✅ **Medical Compliance**: AHA guideline compliance for blood pressure categorization and validation
+
+### **Technical Implementation**:
+- ✅ **Component Architecture**: Modular design with BloodPressureEntryForm, BloodPressureReadingsViewer, and BloodPressureDeviceIntegration
+- ✅ **Style System**: Complete styling suite with bloodPressureEntryStyles, bloodPressureViewerStyles, and bloodPressureDeviceStyles
+- ✅ **Firebase Integration**: Comprehensive data logging with medical context and audit trail functionality
+- ✅ **TypeScript Compliance**: Full type safety with proper interface definitions and medical data validation
+- ✅ **Medical Standards**: AHA-compliant blood pressure categories and validation ranges
+
+### **Files Added/Enhanced**:
+- `app/(protected)/(patient)/blood-pressure-monitoring.tsx` (main navigation hub)
+- `components/coreComponents/BloodPressureEntryForm.tsx` (manual entry with validation)
+- `components/coreComponents/BloodPressureReadingsViewer.tsx` (history and analytics)
+- `components/coreComponents/BloodPressureDeviceIntegration.tsx` (device management)
+- `assets/styles/protectedStyles/patientStyles/bloodPressureMonitoringScreenStyles.ts`
+- `assets/styles/componentStyles/bloodPressureEntryStyles.ts`
+- `assets/styles/componentStyles/bloodPressureViewerStyles.ts`
+- `assets/styles/componentStyles/bloodPressureDeviceStyles.ts`
+- `app/(protected)/(patient)/index.tsx` (dashboard integration)
+
+### **User Impact**:
+- 🩺 **Comprehensive Cardiovascular Care**: Complete blood pressure monitoring alongside existing heart rate tracking
+- 📊 **Medical-Grade Analytics**: Professional data analysis tools suitable for healthcare provider collaboration
+- 🎯 **Real-time Validation**: Immediate feedback helps users understand their blood pressure status
+- 📱 **Future Device Ready**: Architecture supports integration with real blood pressure monitors
+- 🎨 **Consistent Experience**: Maintains app's modern design standards with medical professionalism
+
+---
+
+## 🆕 Previous Major Feature: Google Sign-In Authentication System
 
 ### 📊 **System Overview**
 **Implementation Date**: July 5, 2025  

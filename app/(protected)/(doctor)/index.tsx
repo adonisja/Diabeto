@@ -5,6 +5,7 @@ import { useAuth } from '../../../firebase/AuthContext';
 import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../../components/coreComponents/AppHeader';
+import MedicalAlertsPanel from '../../../components/coreComponents/MedicalAlertsPanel';
 import { useRouter } from 'expo-router';
 import { doctorDashboardStyles } from '../../../assets/styles/protectedStyles/doctorStyles/doctorDashboardStyles';
 
@@ -103,6 +104,11 @@ export default function DoctorDashboard() {
                         <Text style={doctorDashboardStyles.actionTitle}>Analytics</Text>
                         <Text style={doctorDashboardStyles.actionDescription}>View practice analytics and insights</Text>
                     </TouchableOpacity>
+                </View>
+
+                {/* Medical Alerts Panel */}
+                <View style={doctorDashboardStyles.alertsContainer}>
+                    <MedicalAlertsPanel userRole="doctor" />
                 </View>
 
                 {/* Recent Activity */}

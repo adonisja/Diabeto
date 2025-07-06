@@ -7,12 +7,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../../components/coreComponents/AppHeader';
 import DoctorCredentialRequest from '../../../components/coreComponents/DoctorCredentialRequest';
+import MedicalAlertsPanel from '../../../components/coreComponents/MedicalAlertsPanel';
+import NotificationSettings from '../../../components/coreComponents/NotificationSettings';
 import caretakerDashboardStyles from '../../../assets/styles/protectedStyles/caretakerStyles/caretakerDashboardStyles';
 
 export default function CaretakerDashboardScreen() {
     const { user, userProfile } = useAuth();
     const router = useRouter();
     const [showDoctorRequest, setShowDoctorRequest] = useState(false);
+    const [showNotificationSettings, setShowNotificationSettings] = useState(false);
 
     const handleGlucoseMonitoring = () => {
         router.push('/(protected)/(patient)/glucose-monitoring');
@@ -36,6 +39,10 @@ export default function CaretakerDashboardScreen() {
 
     const handleDoctorRequest = () => {
         setShowDoctorRequest(true);
+    };
+
+    const handleNotificationSettings = () => {
+        setShowNotificationSettings(true);
     };
 
     const handleRequestSubmitted = () => {
@@ -135,6 +142,20 @@ export default function CaretakerDashboardScreen() {
                                 <Text style={caretakerDashboardStyles.cardSubtitle}>View & Manage</Text>
                             </LinearGradient>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[caretakerDashboardStyles.actionCard]}
+                            onPress={handleNotificationSettings}
+                        >
+                            <LinearGradient
+                                colors={['#f59e0b', '#d97706']}
+                                style={caretakerDashboardStyles.cardGradient}
+                            >
+                                <Ionicons name="notifications" size={32} color="#fff" />
+                                <Text style={caretakerDashboardStyles.cardTitle}>Alerts</Text>
+                                <Text style={caretakerDashboardStyles.cardSubtitle}>Notification Settings</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Doctor Upgrade Section */}
@@ -158,6 +179,11 @@ export default function CaretakerDashboardScreen() {
                                 </Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+
+                    {/* Medical Alerts Panel */}
+                    <View style={caretakerDashboardStyles.alertsContainer}>
+                        <MedicalAlertsPanel userRole="caretaker" />
                     </View>
 
                     {/* Care Tips Section */}
@@ -200,6 +226,16 @@ export default function CaretakerDashboardScreen() {
                     </View>
                     <DoctorCredentialRequest onRequestSubmitted={handleRequestSubmitted} />
                 </View>
+            </Modal>
+
+            {/* Notification Settings Modal */}
+            <Modal
+                visible={showNotificationSettings}
+                animationType="slide"
+                presentationStyle="pageSheet"
+                onRequestClose={() => setShowNotificationSettings(false)}
+            >
+                <NotificationSettings onClose={() => setShowNotificationSettings(false)} />
             </Modal>
         </SafeAreaView>
     );

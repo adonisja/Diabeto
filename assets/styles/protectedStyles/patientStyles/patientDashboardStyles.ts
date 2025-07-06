@@ -98,6 +98,12 @@ export default StyleSheet.create({
     insulinCard: {
         // Additional styles for insulin card if needed
     },
+    heartRateCard: {
+        // Additional styles for heart rate card if needed
+    },
+    bloodPressureCard: {
+        // Additional styles for blood pressure card if needed
+    },
     invitationsCard: {
         // Additional styles for invitations card if needed
     },

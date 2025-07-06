@@ -58,6 +58,18 @@ export default StyleSheet.create({
         paddingHorizontal: 20,
         marginBottom: 30,
     },
+    alertsContainer: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderRadius: 20,
+        marginHorizontal: 20,
+        marginBottom: 30,
+        overflow: 'hidden',
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+    },
     actionCard: {
         width: (screenWidth - 60) / 2,
         aspectRatio: 1,
