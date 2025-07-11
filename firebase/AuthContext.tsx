@@ -20,6 +20,10 @@ export interface UserProfile {
   gender?: 'Male' | 'Female' | 'Other';
   address?: string;
   phone?: string;
+  // Email verification fields for compliance
+  emailVerified?: boolean;
+  emailVerifiedAt?: any; // Firestore Timestamp or Date
+  emailVerificationMethod?: 'email_link' | 'google_oauth' | string;
   // Prescribed insulin dosages (set by doctor for patients)
   prescribedShortActingDosage?: number;
   prescribedLongActingDosage?: number;

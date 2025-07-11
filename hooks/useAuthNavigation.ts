@@ -86,7 +86,11 @@ export const useAuthNavigation = () => {
     }
 
     // User is authenticated but email not verified
-    if (!user.emailVerified) {
+    // Check both Firebase Auth emailVerified AND user profile emailVerified (for Google OAuth users)
+    const isEmailVerified = user.emailVerified || 
+      (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+    
+    if (!isEmailVerified) {
       if (!inAuthGroup) {
         console.log(`useAuthNavigation: User ${userEmailForLog} email not verified, signing out`);
         
@@ -149,11 +153,15 @@ export const useAuthNavigation = () => {
 
   }, [hasInitialized, user, userProfile, loading, loadingProfile, segments, router, isProfileComplete, currentFullPath]);
 
+  // Enhanced email verification check for Google OAuth users
+  const isEmailVerified = user?.emailVerified || 
+    (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+
   return {
     user,
     userProfile,
     loading: !hasInitialized || loading || loadingProfile,
-    isAuthenticated: !!user && user.emailVerified,
+    isAuthenticated: !!user && isEmailVerified,
     isProfileComplete
   };
 };

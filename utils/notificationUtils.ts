@@ -1,5 +1,3 @@
-// utils/notificationUtils.ts
-
 import * as Device from 'expo-device';
 
 // Type definitions for better type safety

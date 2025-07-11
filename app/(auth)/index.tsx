@@ -43,7 +43,7 @@ export default function AuthLandingScreen() {
                         style={authCommonStyles.button}
                         onPress={() => router.push('/(auth)/Signup')} 
                     >
-                        <Text style={authCommonStyles.buttonText}>Sign Up</Text>
+                        <Text style={authCommonStyles.buttonText}>Create New Account</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity

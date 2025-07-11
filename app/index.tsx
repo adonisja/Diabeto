@@ -70,7 +70,11 @@ export default function AppLandingScreen() {
 
     // Auto-redirect effect for authenticated users
     useEffect(() => {
-        if (AUTO_REDIRECT_ENABLED && authCheckComplete && user && user.emailVerified && !isRedirecting) {
+        // Enhanced email verification check for Google OAuth users
+        const isEmailVerified = user?.emailVerified || 
+            (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+        
+        if (AUTO_REDIRECT_ENABLED && authCheckComplete && user && isEmailVerified && !isRedirecting) {
             console.log('Starting auto-redirect for authenticated user');
             // User is authenticated and verified - auto redirect after a brief moment
             setIsRedirecting(true);
@@ -101,7 +105,11 @@ export default function AppLandingScreen() {
 
     // Manual navigation when user presses the button
     const handleStartApp = () => {
-        if (user && user.emailVerified) {
+        // Enhanced email verification check for Google OAuth users
+        const isEmailVerified = user?.emailVerified || 
+            (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+        
+        if (user && isEmailVerified) {
             if (isProfileComplete) {
                 router.push('/(protected)');
             } else {
@@ -114,15 +122,23 @@ export default function AppLandingScreen() {
 
     // Determine button text and status based on auth check progress and user state
     const getButtonText = () => {
+        // Enhanced email verification check for Google OAuth users
+        const isEmailVerified = user?.emailVerified || 
+            (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+        
         if (isRedirecting && AUTO_REDIRECT_ENABLED) return "Redirecting...";
         if (!authCheckComplete) return "Loading...";
         if (!user) return "Get Started";
-        if (!user.emailVerified) return "Verify Email";
+        if (!isEmailVerified) return "Verify Email";
         if (!isProfileComplete) return "Complete Profile";
         return "Continue to App";
     };
 
     const getStatusMessage = () => {
+        // Enhanced email verification check for Google OAuth users
+        const isEmailVerified = user?.emailVerified || 
+            (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+        
         if (isRedirecting && AUTO_REDIRECT_ENABLED) return "Taking you to your dashboard...";
         if (!authCheckComplete && authCheckTimer > 0) {
             return `Checking authentication... (${authCheckTimer}s)`;
@@ -131,7 +147,7 @@ export default function AppLandingScreen() {
             return "Authentication check complete";
         }
         if (!user) return "Welcome! Ready to get started?";
-        if (!user.emailVerified) return "Please verify your email to continue";
+        if (!isEmailVerified) return "Please verify your email to continue";
         if (!isProfileComplete) return "Profile setup required";
         
         // Use first name if available, otherwise username (username is required at signup)

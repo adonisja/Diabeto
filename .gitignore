@@ -126,6 +126,9 @@ $RECYCLE.BIN/
 *.backup
 *.bak
 
+# Data files
+data/
+
 # Package manager lock files (optional - team decision)
 # Uncomment if your team prefers not to commit lock files
 # package-lock.json
@@ -179,3 +182,69 @@ internal_docs/
 # Note: Only high-level architecture documentation should be public.
 # Detailed internal structure, security details, and personal learning notes
 # must remain private for security and professionalism.
+
+# ===============================================
+# 🏥 MEDICAL DATA & PRIVACY PROTECTION (CRITICAL)
+# ===============================================
+# NEVER COMMIT ANY MEDICAL DATA OR PATIENT INFORMATION
+
+# CSV data files containing patient medical information
+assets/data/Blood_Sugar_Readings.csv
+assets/data/*blood*sugar*.csv
+assets/data/*glucose*.csv
+assets/data/*medical*.csv
+assets/data/cleaned_glucose_data.json
+assets/data/*_cleaned.json
+assets/data/*patient*.csv
+assets/data/*health*.csv
+
+# Medical data audit and import documentation
+BLOOD_SUGAR_CSV_AUDIT.md
+BLOOD_SUGAR_IMPORT_GUIDE.md
+*_CSV_AUDIT.md
+*_IMPORT_GUIDE.md
+*medical_audit*.md
+*patient_data*.md
+
+# Data processing scripts with potential sensitive configurations
+utils/bloodSugarDataCleaner.js
+utils/firebase_glucose_import.js
+utils/*_import.js
+utils/*medical*.js
+utils/*patient*.js
+
+# Any generated medical reports or analyses
+medical_reports/
+patient_data/
+health_data/
+glucose_analysis/
+*_medical_*.json
+*_patient_*.json
+*_health_*.json
+
+# Database exports or backups containing medical data
+*.sql
+*_backup.json
+*_export.json
+firestore_export/
+
+# Test data that might contain realistic medical information
+test_data/
+sample_data/
+mock_medical_data/
+
+# Temporary files that might contain medical data
+*.tmp
+*.temp
+*_temp.csv
+*_temp.json
+
+# HIPAA Compliance: These exclusions ensure no Protected Health Information (PHI)
+# is accidentally committed to the public repository, maintaining patient privacy
+# and regulatory compliance.
+
+# Privacy protection documentation and scripts (contain security strategy details)
+PRIVACY_PROTECTION_NOTICE.md
+scripts/privacy-check.sh
+*privacy*.md
+*privacy*.sh

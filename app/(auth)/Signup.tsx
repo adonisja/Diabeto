@@ -210,7 +210,7 @@ export default function Signup() {
             >
                 <View style={signinStyles.container}>
                     {/* The Stack.Screen for header options is handled by app/(auth)/_layout.tsx */}
-                    <Text style={signinStyles.title}>Sign Up</Text>
+                    <Text style={signinStyles.title}>Create New Account</Text>
 
                     {signupErrorMsg ? <Text style={signinStyles.errorText}>{signupErrorMsg}</Text> : null}
                     {passwordErrorMsg.length > 0 && (

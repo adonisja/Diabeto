@@ -17,7 +17,11 @@ export default function ProtectedIndex() {
         }
 
         // If user is not authenticated, redirect to auth
-        if (!user || !user.emailVerified) {
+        // Enhanced check for Google OAuth users
+        const isEmailVerified = user?.emailVerified || 
+            (userProfile?.emailVerified && userProfile?.emailVerificationMethod === 'google_oauth');
+        
+        if (!user || !isEmailVerified) {
             router.replace('/(auth)');
             return;
         }

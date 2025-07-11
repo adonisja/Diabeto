@@ -1,4 +1,3 @@
-// utils/LogAnalytics.ts
 import { logAction, logPerformance, logFeatureUsage } from '../firebase/LogService';
 
 /**
