@@ -1,23 +1,45 @@
 // firebase/googleAuth.ts
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth, db } from './firebaseConfig';
-import { doc, getDoc, setDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection } from 'firebase/firestore';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { logAction } from './LogService';
 import { getSimpleDeviceId } from '../utils/deviceInfo';
+import Constants from 'expo-constants';
 
 // Complete the WebBrowser authentication session
 WebBrowser.maybeCompleteAuthSession();
 
+// Get environment variables from Expo Constants (same pattern as firebaseConfig.ts)
+const getOAuthEnvVar = (key: string): string => {
+  // First try to get from Expo Constants extra
+  const extraValue = Constants.expoConfig?.extra?.[key];
+  if (extraValue) return extraValue;
+  
+  // Then try process.env (for development)
+  const envValue = process.env[`EXPO_PUBLIC_${key.toUpperCase()}`];
+  if (envValue) return envValue;
+  
+  throw new Error(`OAuth environment variable ${key} is required but not found. Check your app.config.js and .env file.`);
+};
+
 // Google OAuth Configuration
 const GOOGLE_OAUTH_CONFIG = {
-  // You'll need to replace these with your actual Google OAuth credentials
-  // Get these from: https://console.developers.google.com/
-  clientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_CLIENT_ID || '', // For web/expo
-  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_CLIENT_ID || '', // For iOS
-  androidClientId: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_ANDROID_CLIENT_ID || '', // For Android
+  // Using Expo Constants for client-side environment variable access
+  clientId: getOAuthEnvVar('googleOAuthClientId'), // For web/expo
+  iosClientId: getOAuthEnvVar('googleOAuthIosClientId'), // For iOS
+  androidClientId: getOAuthEnvVar('googleOAuthAndroidClientId'), // For Android
 };
+
+// Debug logging in development
+if (__DEV__) {
+  console.log('🔐 Google OAuth Config loaded:', {
+    clientId: GOOGLE_OAUTH_CONFIG.clientId ? `${GOOGLE_OAUTH_CONFIG.clientId.substring(0, 12)}...` : '❌ Missing',
+    iosClientId: GOOGLE_OAUTH_CONFIG.iosClientId ? `${GOOGLE_OAUTH_CONFIG.iosClientId.substring(0, 12)}...` : '❌ Missing',
+    androidClientId: GOOGLE_OAUTH_CONFIG.androidClientId ? `${GOOGLE_OAUTH_CONFIG.androidClientId.substring(0, 12)}...` : '❌ Missing',
+  });
+}
 
 // Google OAuth discovery document
 const discovery = {
@@ -28,10 +50,16 @@ const discovery = {
 
 // Hook for Google authentication
 export const useGoogleAuth = () => {
-  const redirectUri = makeRedirectUri({
-    scheme: 'diabeto',
-    path: 'auth',
-  });
+  // Force localhost redirect URI to avoid Google's custom scheme restriction
+  // In development, use localhost; in production, could use a proper domain
+  const redirectUri = __DEV__ 
+    ? 'http://localhost:19006' // Force localhost in development
+    : makeRedirectUri(); // Use default in production (if needed)
+
+  // Log the redirect URI being used for debugging
+  if (__DEV__) {
+    console.log('🔗 OAuth Redirect URI:', redirectUri);
+  }
 
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -67,6 +95,7 @@ export const signInWithGoogle = async (accessToken: string): Promise<{success: b
 
     if (!userDoc.exists()) {
       // Create new user profile for Google sign-in
+      // IMPORTANT: Google OAuth users have verified emails by default
       const newUserProfile = {
         uid: user.uid,
         email: user.email || '',
@@ -79,6 +108,9 @@ export const signInWithGoogle = async (accessToken: string): Promise<{success: b
         updatedAt: new Date(),
         authProvider: 'google', // Track authentication method
         photoURL: user.photoURL || null,
+        emailVerified: true, // Google OAuth users have verified emails
+        emailVerifiedAt: new Date(), // Track when email was verified
+        emailVerificationMethod: 'google_oauth', // Track verification method
       };
 
       await setDoc(userDocRef, newUserProfile);
@@ -99,18 +131,39 @@ export const signInWithGoogle = async (accessToken: string): Promise<{success: b
         }
       );
     } else {
-      // Existing user - log the sign-in
+      // Existing user - ensure email verification status is correct for Google OAuth
+      const existingUserData = userDoc.data();
+      
+      // Update profile if email verification info is missing (for existing Google users)
+      if (!existingUserData?.emailVerified || existingUserData?.authProvider !== 'google') {
+        const updateData: any = {
+          updatedAt: new Date(),
+          authProvider: 'google',
+          emailVerified: true, // Google OAuth users always have verified emails
+        };
+        
+        // Only set these if they don't exist
+        if (!existingUserData?.emailVerifiedAt) {
+          updateData.emailVerifiedAt = new Date();
+          updateData.emailVerificationMethod = 'google_oauth';
+        }
+        
+        await updateDoc(userDocRef, updateData);
+      }
+      
+      // Log the sign-in
       await logAction(
         user.uid,
-        userDoc.data()?.username || user.email?.split('@')[0] || '',
+        existingUserData?.username || user.email?.split('@')[0] || '',
         user.email || '',
-        userDoc.data()?.role || 'unverified',
+        existingUserData?.role || 'unverified',
         'GOOGLE_SIGNIN_SUCCESS',
         'success',
         {
           displayName: user.displayName,
           provider: 'google',
           existingUser: true,
+          emailVerified: true, // Google users always have verified emails
           deviceId: deviceId,
         }
       );
@@ -162,10 +215,7 @@ export const exchangeCodeForToken = async (code: string): Promise<string | null>
         client_id: GOOGLE_OAUTH_CONFIG.clientId,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: makeRedirectUri({
-          scheme: 'diabeto',
-          path: 'auth',
-        }),
+        redirect_uri: __DEV__ ? 'http://localhost:19006' : makeRedirectUri(), // Match the same redirect URI
       }).toString(),
     });
 
