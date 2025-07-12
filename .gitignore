@@ -138,26 +138,57 @@ data/
 # @end expo-cli
 
 # ===============================================
-# 📚 DOCUMENTATION FILES
+# 📚 DOCUMENTATION FILES - ENHANCED PROTECTION
 # ===============================================
 # Include public documentation, exclude sensitive details
 
-# Public documentation (MUST be tracked)
-!ARCHITECTURE.md
-
-# Sensitive documentation (MUST NOT be tracked)
+# ❌ SENSITIVE ROOT-LEVEL DOCUMENTATION (MUST NOT be tracked)
 BUGS_AND_FIXES.md                     # Contains security vulnerabilities, implementation details, admin access patterns
 PROJECT_STRUCTURE.md                  # Contains internal architecture and sensitive file paths
 REFACTORING_SUMMARY.md               # Personal learning tool and internal development notes
 ARCHITECTURE_UPDATE_COMPLETE.md      # Internal completion status and development workflow
 GIT_WORKFLOW_GUIDE.md                # Internal git workflow and security guidelines
+DOCUMENTATION_INDEX.md               # Contains implementation timelines and sensitive feature details
+DOCUMENTATION_STRUCTURE_INSTRUCTIONS.md  # Internal documentation guidelines
+DOCUMENTATION_GUIDELINES.md          # Internal documentation standards
 *_COMPLETE.md                        # Internal status files and development artifacts
+*_SUMMARY.md                         # Internal implementation summaries
+*_GUIDE.md                           # Internal setup and configuration guides
+*_INSTRUCTIONS.md                    # Internal development instructions
+
+# ❌ SENSITIVE DOCUMENTATION DIRECTORY FILES (MUST NOT be tracked)
+DOCUMENTATION/CORE/PROJECT_STRUCTURE.md        # Contains detailed internal architecture and sensitive implementation details
+DOCUMENTATION/CORE/DATABASE_SCHEMA.md          # Contains sensitive database structure and medical data schema
+DOCUMENTATION/SUMMARIES/BUGS_AND_FIXES.md      # Contains security vulnerabilities and implementation details
+DOCUMENTATION/SUMMARIES/*IMPLEMENTATION*.md    # Contains internal implementation details
+DOCUMENTATION/SUMMARIES/*_SUMMARY.md           # Internal implementation summaries
+DOCUMENTATION/SUMMARIES/*_COMPLETION*.md       # Internal completion status files
+DOCUMENTATION/GUIDES/GIT_WORKFLOW_GUIDE.md     # Contains internal security procedures
+DOCUMENTATION/GUIDES/DOCUMENTATION_GUIDELINES.md # Contains internal documentation standards
+DOCUMENTATION/GUIDES/PRIVACY_PROTECTION_NOTICE.md # Contains sensitive privacy strategies
+DOCUMENTATION/GUIDES/*_GUIDE.md                # Internal setup and configuration guides
+DOCUMENTATION/GUIDES/*_INSTRUCTIONS.md         # Internal development instructions
+
+# ❌ OAUTH AND CONFIGURATION DOCUMENTATION (MUST NOT be tracked)
+*OAUTH*.md                           # Contains OAuth configuration details and security setup
+*CONFIG*.md                          # Contains configuration details and setup procedures
+*SETUP*.md                           # Contains setup procedures and internal guidelines
+*FIX*.md                             # Contains fix implementations and security details
+*TROUBLESHOOTING*.md                 # Contains internal troubleshooting procedures
 
 # Sensitive configuration and setup files
 temp_admin_setup.js
 *admin_setup*
 debug.keystore
 *.keystore
+
+# ❌ TEST AND DIAGNOSTIC SCRIPTS (MUST NOT be tracked)
+test-*.sh                            # Test scripts containing configuration details
+test-*.js                            # Diagnostic scripts with environment variables
+debug-*.js                           # Debug scripts with sensitive configuration
+verify-*.js                          # Verification scripts with internal details
+diagnose-*.js                        # Diagnostic tools with system information
+check-*.sh                           # Check scripts with configuration validation
 
 # Firebase Configuration (SENSITIVE - contains API keys)
 firebase/firebaseConfig.ts
