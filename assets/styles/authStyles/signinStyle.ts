@@ -1,4 +1,3 @@
-// assets/styles/authStyles/signinStyle.ts
 import { StyleSheet } from 'react-native';
 
 const signinStyles = StyleSheet.create({
@@ -12,6 +11,30 @@ const signinStyles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         backgroundColor: 'transparent', // Make container background transparent so gradient shows through
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderColor: '#aaa',
+        backgroundColor: 'transparent',
+        marginRight: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 4
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 8,
+        paddingHorizontal: 4,
+        paddingVertical: 4,
+    },
+    checkboxLabel: {
+        color: '#666666',
+        fontSize: 14,
+        flex: 1,
+        fontWeight: '400'
     },
     title: {
         fontSize: 32,
@@ -29,7 +52,7 @@ const signinStyles = StyleSheet.create({
         marginBottom: 15,
         backgroundColor: '#fff',
         fontSize: 16,
-        color: '#343a40', // Ensure text color is readable
+        color: '#1a1a1a', // Ensure text color is readable
     },
     errorText: {
         color: '#ffdddd', // Lighter red for visibility on dark background
@@ -67,7 +90,6 @@ const signinStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    // Removed buttonSpacing, it was unused in your current Signin.tsx structure
     googleButton: {
         width: '100%',
         backgroundColor: '#dc3545',
@@ -113,13 +135,11 @@ const signinStyles = StyleSheet.create({
         fontSize: 16,
         textDecorationLine: 'underline',
     },
-    // FIX 3: Added linkText style
     linkText: {
         color: '#fff', // White for visibility on dark gradient
         marginTop: 15, // Space from button above
         fontSize: 16,
         justifyContent: 'center',
-        // textDecorationLine: 'underline', // Optional: Add underline for links
     },
     orText: {
         color: '#fff',

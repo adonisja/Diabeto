@@ -1,5 +1,5 @@
 // app/(auth)/Signup.tsx
-import { Text, View, TouchableOpacity, TextInput, Platform, Dimensions, KeyboardAvoidingView, Alert, SafeAreaView } from "react-native";
+import { Text, View, TouchableOpacity, TextInput, Platform, Dimensions, KeyboardAvoidingView, Alert, Pressable } from "react-native";
 import { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, serverTimestamp, collection, query, where, getDocs } from "firebase/firestore";
@@ -27,6 +27,36 @@ export default function Signup() {
     const [signupErrorMsg, setSignupErrorMsg] = useState(``);
     const [isRegistering, setIsRegistering] = useState(false);
     const [deviceId, setDeviceId] = useState<string>('unknown-device');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const PasswordVisibilityCheckbox = ({
+        isVisible,
+        onToggle,
+        label
+    } : {
+        isVisible: boolean;
+        onToggle: () => void;
+        label: String;
+    }) => (
+        <Pressable
+            style={[
+                signinStyles.checkboxContainer,
+                { flexDirection: 'row', alignItems: 'center', marginVertical: 8 }
+            ]}
+            onPress={onToggle}
+        >
+            <View style={signinStyles.checkbox}
+            >
+                {isVisible && (
+                    <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold'}}>✓</Text>
+                )}
+            </View>
+            <Text style={[ signinStyles.checkboxLabel, { color: '#aaa', fontSize: 14 }]}>
+                {label}
+            </Text>
+        </Pressable>
+    )
 
     // Get device ID on component mount
     useEffect(() => {
@@ -199,6 +229,8 @@ export default function Signup() {
         }
     };
 
+    
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -226,7 +258,7 @@ export default function Signup() {
                     <TextInput
                         style={signinStyles.input}
                         placeholder="Username"
-                        placeholderTextColor="#ccc"
+                        placeholderTextColor="#666666"
                         autoCapitalize="none"
                         textContentType="username"
                         autoComplete="username"
@@ -236,7 +268,7 @@ export default function Signup() {
                     <TextInput
                         style={signinStyles.input}
                         placeholder="Email"
-                        placeholderTextColor="#ccc"
+                        placeholderTextColor="#666666"
                         keyboardType="email-address"
                         autoCapitalize="none"
                         textContentType="emailAddress"
@@ -247,22 +279,32 @@ export default function Signup() {
                     <TextInput
                         style={signinStyles.input}
                         placeholder="Password"
-                        placeholderTextColor="#ccc"
-                        secureTextEntry
+                        placeholderTextColor="#666666"
+                        secureTextEntry={!showPassword}
                         value={password}
                         onChangeText={setPassword}
                         textContentType="newPassword"
                         autoComplete="new-password"
                     />
+                    <PasswordVisibilityCheckbox
+                        isVisible={showPassword}
+                        onToggle={() => setShowPassword(!showPassword)}
+                        label='Show Password'
+                    />
                     <TextInput
                         style={signinStyles.input}
                         placeholder="Confirm Password"
-                        placeholderTextColor="#ccc"
-                        secureTextEntry
+                        placeholderTextColor="#666666"
+                        secureTextEntry={!showConfirmPassword}
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
                         textContentType="newPassword"
                         autoComplete="new-password"
+                    />
+                    <PasswordVisibilityCheckbox
+                        isVisible={showConfirmPassword}
+                        onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+                        label='Show Confirm Password'
                     />
 
                     <TouchableOpacity style={signinStyles.button} onPress={handleSignup} disabled={isRegistering}>
