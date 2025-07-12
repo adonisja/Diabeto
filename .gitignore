@@ -282,4 +282,7 @@ mock_medical_data/
 PRIVACY_PROTECTION_NOTICE.md
 scripts/privacy-check.sh
 *privacy*.md
-*privacy*.shPRIVATE_DOCS/
+*privacy*.sh
+
+# ❌ PRIVATE DOCUMENTATION DIRECTORY (CRITICAL - MUST NOT be tracked)
+PRIVATE_DOCS/
