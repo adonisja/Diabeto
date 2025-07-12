@@ -156,6 +156,10 @@ DOCUMENTATION_GUIDELINES.md          # Internal documentation standards
 *_GUIDE.md                           # Internal setup and configuration guides
 *_INSTRUCTIONS.md                    # Internal development instructions
 
+# ❌ PRIVATE DOCUMENTATION DIRECTORY (MUST NOT be tracked)
+PRIVATE_DOCS/                         # Contains all sensitive internal documentation
+*_PRIVATE/                            # Any private documentation directories
+
 # ❌ SENSITIVE DOCUMENTATION DIRECTORY FILES (MUST NOT be tracked)
 DOCUMENTATION/CORE/PROJECT_STRUCTURE.md        # Contains detailed internal architecture and sensitive implementation details
 DOCUMENTATION/CORE/DATABASE_SCHEMA.md          # Contains sensitive database structure and medical data schema
